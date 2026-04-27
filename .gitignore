@@ -1,0 +1,52 @@
+# =========================
+# ROOT / GLOBAL
+# =========================
+node_modules/
+dist/
+build/
+coverage/
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# =========================
+# ENV FILES (IMPORTANT)
+# =========================
+.env
+.env.local
+.env.example
+.env.development.local
+.env.test.local
+.env.production.local
+
+# =========================
+# FRONTEND (Vite / React)
+# =========================
+node_modules/
+dist/
+.vite/
+.env
+.env.local
+
+# Cache
+.eslintcache
+
+
+# =========================
+# OPTIONAL
+# =========================
+*.zip
+*.rar
+*.7z
