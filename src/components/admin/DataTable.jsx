@@ -17,6 +17,7 @@ const DataTable = ({
   emptyMessage = "No data found",
 }) => {
   const [deleteId, setDeleteId] = useState(null);
+  const rows = Array.isArray(data) ? data : [];
 
   const handleDelete = () => {
     if (onDelete && deleteId) {
@@ -48,7 +49,7 @@ const DataTable = ({
             </tr>
           </thead>
           <tbody>
-            {data.length === 0 ? (
+            {rows.length === 0 ? (
               <tr>
                 <td
                   colSpan={columns.length + (actions ? 1 : 0)}
@@ -58,7 +59,7 @@ const DataTable = ({
                 </td>
               </tr>
             ) : (
-              data.map((row, rowIndex) => (
+              rows.map((row, rowIndex) => (
                 <tr
                   key={row._id || rowIndex}
                   className="border-b border-slate-700/30 hover:bg-slate-800/50 transition-colors"

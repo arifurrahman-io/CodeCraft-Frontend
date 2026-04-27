@@ -1,40 +1,100 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Plus, Search } from "lucide-react";
 import { toast } from "sonner";
+
 import Button from "@/components/common/Button";
 import Input from "@/components/common/Input";
 import DataTable from "@/components/admin/DataTable";
 import StatusBadge from "@/components/admin/StatusBadge";
 import { deleteService, getAllServices } from "@/services/serviceService";
 
+const getServicesFromResponse = (response) => {
+  if (Array.isArray(response)) return response;
+  if (Array.isArray(response?.data)) return response.data;
+  if (Array.isArray(response?.data?.services)) return response.data.services;
+  if (Array.isArray(response?.data?.data)) return response.data.data;
+  if (Array.isArray(response?.services)) return response.services;
+  return [];
+};
+
+const normalizeService = (service = {}) => ({
+  ...service,
+  _id: service._id || service.id,
+  title: service.title || "Untitled Service",
+  slug: service.slug || service._id || service.id,
+  shortDescription: service.shortDescription || "",
+  priceRange: service.priceRange || "N/A",
+  order: Number(service.order || 0),
+  isFeatured: Boolean(service.isFeatured),
+  isActive:
+    typeof service.isActive === "boolean"
+      ? service.isActive
+      : service.status === "inactive"
+        ? false
+        : true,
+});
+
 const ServiceListPage = () => {
   const [services, setServices] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
+  const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    getAllServices().then((response) => setServices(response.data || []));
+  const fetchServices = useCallback(async () => {
+    try {
+      const response = await getAllServices();
+      const servicesData = getServicesFromResponse(response)
+        .map(normalizeService)
+        .sort((a, b) => a.order - b.order);
+
+      setServices(servicesData);
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Failed to load services");
+      setServices([]);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
+  useEffect(() => {
+    queueMicrotask(fetchServices);
+  }, [fetchServices]);
+
   const handleDelete = async (id) => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this service?",
+    );
+
+    if (!confirmed) return;
+
     try {
       await deleteService(id);
-      setServices(services.filter((s) => s._id !== id));
+
+      setServices((prev) => prev.filter((service) => service._id !== id));
       toast.success("Service deleted successfully");
-    } catch {
-      toast.error("Failed to delete service");
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Failed to delete service");
     }
   };
 
-  const filteredServices = services.filter((service) => {
-    const matchesSearch =
-      service.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      service.category.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus =
-      filterStatus === "all" || service.status === filterStatus;
-    return matchesSearch && matchesStatus;
-  });
+  const filteredServices = useMemo(() => {
+    const query = searchTerm.trim().toLowerCase();
+
+    return services.filter((service) => {
+      const status = service.isActive ? "active" : "inactive";
+
+      const matchesSearch =
+        !query ||
+        service.title.toLowerCase().includes(query) ||
+        service.shortDescription.toLowerCase().includes(query) ||
+        service.priceRange.toLowerCase().includes(query);
+
+      const matchesStatus = filterStatus === "all" || status === filterStatus;
+
+      return matchesSearch && matchesStatus;
+    });
+  }, [services, searchTerm, filterStatus]);
 
   const columns = [
     {
@@ -43,20 +103,23 @@ const ServiceListPage = () => {
       render: (row) => (
         <div>
           <h3 className="font-medium text-slate-100">{row.title}</h3>
-          <p className="text-sm text-slate-500">{row.category}</p>
+          <p className="text-sm text-slate-500 line-clamp-1">
+            {row.shortDescription || "No short description"}
+          </p>
         </div>
       ),
     },
     {
-      header: "Price",
-      accessor: "price",
+      header: "Price Range",
+      accessor: "priceRange",
       render: (row) => (
-        <span className="text-cyan-500 font-medium">{row.price}</span>
+        <span className="text-cyan-500 font-medium">{row.priceRange}</span>
       ),
     },
     {
-      header: "Duration",
-      accessor: "duration",
+      header: "Order",
+      accessor: "order",
+      render: (row) => <span className="text-slate-300">{row.order}</span>,
     },
     {
       header: "Featured",
@@ -75,25 +138,26 @@ const ServiceListPage = () => {
     },
     {
       header: "Status",
-      accessor: "status",
-      render: (row) => <StatusBadge status={row.status} />,
+      accessor: "isActive",
+      render: (row) => (
+        <StatusBadge status={row.isActive ? "active" : "inactive"} />
+      ),
     },
   ];
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-100">Services</h1>
           <p className="text-slate-400">Manage your service offerings</p>
         </div>
+
         <Link to="/admin/services/create">
           <Button icon={Plus}>Add Service</Button>
         </Link>
       </div>
 
-      {/* Filters */}
       <div className="flex flex-col md:flex-row gap-4">
         <div className="flex-1">
           <Input
@@ -103,6 +167,7 @@ const ServiceListPage = () => {
             icon={Search}
           />
         </div>
+
         <select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
@@ -114,15 +179,20 @@ const ServiceListPage = () => {
         </select>
       </div>
 
-      {/* Table */}
-      <DataTable
-        columns={columns}
-        data={filteredServices}
-        basePath="/admin/services"
-        viewPath={(row) => `/services/${row.slug}`}
-        onDelete={handleDelete}
-        emptyMessage="No services found"
-      />
+      {isLoading ? (
+        <div className="glass rounded-xl p-6 border border-slate-700/50">
+          <p className="text-slate-300">Loading services...</p>
+        </div>
+      ) : (
+        <DataTable
+          columns={columns}
+          data={filteredServices}
+          basePath="/admin/services"
+          viewPath={(row) => `/services/${row.slug}`}
+          onDelete={handleDelete}
+          emptyMessage="No services found"
+        />
+      )}
     </div>
   );
 };

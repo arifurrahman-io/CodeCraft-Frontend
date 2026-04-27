@@ -15,7 +15,7 @@ const ProjectCard = ({ project, index = 0 }) => {
         {/* Image */}
         <div className="relative h-48 overflow-hidden">
           <img
-            src={project.thumbnail || project.image}
+            src={project.coverImage || project.image}
             alt={project.title}
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
           />

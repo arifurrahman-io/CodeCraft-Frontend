@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
+
 import Button from "@/components/common/Button";
 import Input from "@/components/common/Input";
 import TextArea from "@/components/common/TextArea";
@@ -20,108 +21,246 @@ const iconOptions = [
   "ShoppingCart",
   "Code",
 ];
-const categoryOptions = [
-  "Web Development",
-  "Mobile App Development",
-  "UI/UX Design",
-  "SaaS Development",
-  "E-commerce Solutions",
-  "API Development",
-];
+
+const initialFormData = {
+  title: "",
+  slug: "",
+  shortDescription: "",
+  description: "",
+  icon: "Globe",
+  image: "",
+  features: [],
+  technologies: [],
+  priceRange: "",
+  isFeatured: false,
+  isActive: true,
+  order: 0,
+  seoTitle: "",
+  seoDescription: "",
+};
+
+const ensureArray = (value) => {
+  if (Array.isArray(value)) return value;
+  if (!value) return [];
+
+  return String(value)
+    .split(/\n|,/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+};
+
+const generateSlug = (value) =>
+  value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+
+const getServiceFromResponse = (response) =>
+  response?.data?.service ||
+  response?.data?.data ||
+  response?.data ||
+  response?.service ||
+  response ||
+  null;
+
+const normalizeServiceData = (data = {}) => ({
+  ...initialFormData,
+  ...data,
+  features: ensureArray(data.features),
+  technologies: ensureArray(data.technologies),
+  priceRange: data.priceRange || "",
+  isFeatured: Boolean(data.isFeatured),
+  isActive:
+    typeof data.isActive === "boolean"
+      ? data.isActive
+      : data.status === "inactive"
+        ? false
+        : true,
+  order: Number(data.order || 0),
+  seoTitle: data.seoTitle || "",
+  seoDescription: data.seoDescription || "",
+  image: data.image || "",
+});
+
+const buildPayload = (formData) => ({
+  title: formData.title.trim(),
+  slug: formData.slug.trim() || generateSlug(formData.title),
+  shortDescription: formData.shortDescription.trim(),
+  description: formData.description.trim(),
+  icon: formData.icon || "",
+  image: formData.image || "",
+  features: ensureArray(formData.features),
+  technologies: ensureArray(formData.technologies),
+  priceRange: formData.priceRange.trim(),
+  isFeatured: Boolean(formData.isFeatured),
+  isActive: Boolean(formData.isActive),
+  order: Number(formData.order || 0),
+  seoTitle: formData.seoTitle.trim(),
+  seoDescription: formData.seoDescription.trim(),
+});
 
 const ServiceFormPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const isEditing = !!id;
+  const isEditing = Boolean(id);
 
-  const [formData, setFormData] = useState({
-    title: "",
-    slug: "",
-    shortDescription: "",
-    description: "",
-    icon: "Globe",
-    features: [],
-    priceRange: "",
-    category: "Web Development",
-    isFeatured: false,
-    isActive: true,
-    image: "",
-  });
+  const [formData, setFormData] = useState(initialFormData);
   const [featureInput, setFeatureInput] = useState("");
+  const [technologyInput, setTechnologyInput] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(isEditing);
 
   useEffect(() => {
-    if (isEditing) {
-      getServiceById(id).then((response) => {
-        if (response.data) setFormData(response.data);
-      });
-    }
-  }, [id, isEditing]);
+    let isMounted = true;
+
+    const fetchService = async () => {
+      if (!isEditing) return;
+
+      try {
+        setIsLoading(true);
+        const response = await getServiceById(id);
+        const service = getServiceFromResponse(response);
+
+        if (isMounted && service) {
+          setFormData(normalizeServiceData(service));
+        }
+      } catch (error) {
+        toast.error(
+          error?.response?.data?.message || "Failed to load service details",
+        );
+        navigate("/admin/services");
+      } finally {
+        if (isMounted) setIsLoading(false);
+      }
+    };
+
+    fetchService();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [id, isEditing, navigate]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData({
-      ...formData,
-      [name]: type === "checkbox" ? checked : value,
-    });
 
-    // Auto-generate slug from title
-    if (name === "title") {
-      const slug = value
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-|-$/g, "");
-      setFormData((prev) => ({ ...prev, slug }));
-    }
+    setFormData((prev) => {
+      const nextData = {
+        ...prev,
+        [name]: type === "checkbox" ? checked : value,
+      };
+
+      if (name === "title") {
+        nextData.slug = generateSlug(value);
+      }
+
+      return nextData;
+    });
+  };
+
+  const handleStatusChange = (e) => {
+    setFormData((prev) => ({
+      ...prev,
+      isActive: e.target.value === "active",
+    }));
   };
 
   const handleAddFeature = () => {
-    if (featureInput.trim()) {
-      setFormData({
-        ...formData,
-        features: [...formData.features, featureInput.trim()],
-      });
-      setFeatureInput("");
-    }
+    const value = featureInput.trim();
+    if (!value) return;
+
+    setFormData((prev) => ({
+      ...prev,
+      features: [...ensureArray(prev.features), value],
+    }));
+
+    setFeatureInput("");
   };
 
   const handleRemoveFeature = (index) => {
-    setFormData({
-      ...formData,
-      features: formData.features.filter((_, i) => i !== index),
-    });
+    setFormData((prev) => ({
+      ...prev,
+      features: ensureArray(prev.features).filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleAddTechnology = () => {
+    const value = technologyInput.trim();
+    if (!value) return;
+
+    setFormData((prev) => ({
+      ...prev,
+      technologies: [...ensureArray(prev.technologies), value],
+    }));
+
+    setTechnologyInput("");
+  };
+
+  const handleRemoveTechnology = (index) => {
+    setFormData((prev) => ({
+      ...prev,
+      technologies: ensureArray(prev.technologies).filter(
+        (_, i) => i !== index,
+      ),
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const payload = buildPayload(formData);
+
+    if (
+      !payload.title ||
+      !payload.slug ||
+      !payload.shortDescription ||
+      !payload.description
+    ) {
+      toast.error("Please fill all required fields");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
       if (isEditing) {
-        await updateService(id, formData);
+        await updateService(id, payload);
         toast.success("Service updated successfully");
       } else {
-        await createService(formData);
+        await createService(payload);
         toast.success("Service created successfully");
       }
+
       navigate("/admin/services");
-    } catch {
-      toast.error("Failed to save service");
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Failed to save service");
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="mx-auto w-full max-w-4xl">
+        <div className="glass rounded-xl p-6 border border-slate-700/50">
+          <p className="text-slate-300">Loading service...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto w-full max-w-4xl">
-      {/* Header */}
       <div className="flex items-center gap-4 mb-6">
         <button
+          type="button"
           onClick={() => navigate("/admin/services")}
           className="p-2 rounded-lg text-slate-400 hover:text-slate-100 hover:bg-slate-800 transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
+
         <div>
           <h1 className="text-2xl font-bold text-slate-100">
             {isEditing ? "Edit Service" : "Create Service"}
@@ -134,7 +273,6 @@ const ServiceFormPage = () => {
         </div>
       </div>
 
-      {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="glass rounded-xl p-6 border border-slate-700/50 space-y-6">
           <h2 className="text-lg font-semibold text-slate-100">
@@ -150,6 +288,7 @@ const ServiceFormPage = () => {
               placeholder="Web Application Development"
               required
             />
+
             <Input
               label="Slug"
               name="slug"
@@ -183,23 +322,6 @@ const ServiceFormPage = () => {
           <div className="grid md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">
-                Category
-              </label>
-              <select
-                name="category"
-                value={formData.category}
-                onChange={handleChange}
-                className="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 focus:outline-none focus:ring-2 focus:ring-cyan-500"
-              >
-                {categoryOptions.map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
                 Icon
               </label>
               <select
@@ -215,30 +337,28 @@ const ServiceFormPage = () => {
                 ))}
               </select>
             </div>
+
+            <Input
+              label="Order"
+              name="order"
+              type="number"
+              value={formData.order}
+              onChange={handleChange}
+              placeholder="0"
+            />
           </div>
         </div>
 
         <div className="glass rounded-xl p-6 border border-slate-700/50 space-y-6">
-          <h2 className="text-lg font-semibold text-slate-100">
-            Pricing & Duration
-          </h2>
+          <h2 className="text-lg font-semibold text-slate-100">Pricing</h2>
 
-          <div className="grid md:grid-cols-2 gap-6">
-            <Input
-              label="Price"
-              name="price"
-              value={formData.price}
-              onChange={handleChange}
-              placeholder="From $2,000"
-            />
-            <Input
-              label="Duration"
-              name="duration"
-              value={formData.duration}
-              onChange={handleChange}
-              placeholder="4-8 weeks"
-            />
-          </div>
+          <Input
+            label="Price Range"
+            name="priceRange"
+            value={formData.priceRange}
+            onChange={handleChange}
+            placeholder="৳20,000 - ৳50,000 / Negotiable"
+          />
         </div>
 
         <div className="glass rounded-xl p-6 border border-slate-700/50 space-y-6">
@@ -249,10 +369,14 @@ const ServiceFormPage = () => {
               placeholder="Add a feature..."
               value={featureInput}
               onChange={(e) => setFeatureInput(e.target.value)}
-              onKeyPress={(e) =>
-                e.key === "Enter" && (e.preventDefault(), handleAddFeature())
-              }
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleAddFeature();
+                }
+              }}
             />
+
             <Button
               type="button"
               variant="secondary"
@@ -263,9 +387,9 @@ const ServiceFormPage = () => {
           </div>
 
           <div className="flex flex-wrap gap-2">
-            {formData.features.map((feature, index) => (
+            {ensureArray(formData.features).map((feature, index) => (
               <span
-                key={index}
+                key={`${feature}-${index}`}
                 className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300"
               >
                 {feature}
@@ -282,12 +406,82 @@ const ServiceFormPage = () => {
         </div>
 
         <div className="glass rounded-xl p-6 border border-slate-700/50 space-y-6">
+          <h2 className="text-lg font-semibold text-slate-100">Technologies</h2>
+
+          <div className="flex gap-3">
+            <Input
+              placeholder="Add a technology..."
+              value={technologyInput}
+              onChange={(e) => setTechnologyInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleAddTechnology();
+                }
+              }}
+            />
+
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={handleAddTechnology}
+            >
+              Add
+            </Button>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            {ensureArray(formData.technologies).map((technology, index) => (
+              <span
+                key={`${technology}-${index}`}
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300"
+              >
+                {technology}
+                <button
+                  type="button"
+                  onClick={() => handleRemoveTechnology(index)}
+                  className="text-slate-500 hover:text-red-500"
+                >
+                  ×
+                </button>
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <div className="glass rounded-xl p-6 border border-slate-700/50 space-y-6">
           <h2 className="text-lg font-semibold text-slate-100">Image</h2>
 
           <ImageUploader
             label="Service Image"
             value={formData.image}
-            onChange={(image) => setFormData({ ...formData, image })}
+            onChange={(image) =>
+              setFormData((prev) => ({
+                ...prev,
+                image,
+              }))
+            }
+          />
+        </div>
+
+        <div className="glass rounded-xl p-6 border border-slate-700/50 space-y-6">
+          <h2 className="text-lg font-semibold text-slate-100">SEO</h2>
+
+          <Input
+            label="SEO Title"
+            name="seoTitle"
+            value={formData.seoTitle}
+            onChange={handleChange}
+            placeholder="SEO optimized title"
+          />
+
+          <TextArea
+            label="SEO Description"
+            name="seoDescription"
+            value={formData.seoDescription}
+            onChange={handleChange}
+            placeholder="SEO optimized description..."
+            rows={3}
           />
         </div>
 
@@ -311,9 +505,8 @@ const ServiceFormPage = () => {
                 Status
               </label>
               <select
-                name="status"
-                value={formData.status}
-                onChange={handleChange}
+                value={formData.isActive ? "active" : "inactive"}
+                onChange={handleStatusChange}
                 className="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 focus:outline-none focus:ring-2 focus:ring-cyan-500"
               >
                 <option value="active">Active</option>
@@ -323,7 +516,6 @@ const ServiceFormPage = () => {
           </div>
         </div>
 
-        {/* Actions */}
         <div className="flex justify-end gap-4">
           <Button
             type="button"
@@ -332,6 +524,7 @@ const ServiceFormPage = () => {
           >
             Cancel
           </Button>
+
           <Button type="submit" isLoading={isSubmitting}>
             {isEditing ? "Update Service" : "Create Service"}
           </Button>

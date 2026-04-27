@@ -1,30 +1,138 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, Calendar, ExternalLink } from "lucide-react";
+import {
+  ArrowLeft,
+  Calendar,
+  ExternalLink,
+  CheckCircle2,
+  User,
+  Tag,
+} from "lucide-react";
+import { FaGithub } from "react-icons/fa";
+import { toast } from "sonner";
+
 import Button from "@/components/common/Button";
 import SectionHeader from "@/components/common/SectionHeader";
 import { getProjectBySlug } from "@/services/projectService";
 
+const fallbackImage =
+  "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1200&auto=format&fit=crop&q=80";
+
+const getProjectFromResponse = (response) =>
+  response?.data?.project ||
+  response?.data?.data ||
+  response?.data ||
+  response?.project ||
+  response ||
+  null;
+
+const ensureArray = (value) => {
+  if (Array.isArray(value)) return value;
+  if (!value) return [];
+
+  return String(value)
+    .split(/\n|,/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+};
+
+const formatDate = (date) => {
+  if (!date) return "Not specified";
+
+  return new Date(date).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+};
+
+const normalizeProject = (project) => {
+  if (!project) return null;
+
+  return {
+    ...project,
+    title: project.title || "Untitled Project",
+    slug: project.slug || "",
+    category: project.category || "Project",
+    clientName: project.clientName || project.client || "Confidential",
+    shortDescription: project.shortDescription || "",
+    description: project.description || "",
+    problem: project.problem || "",
+    solution: project.solution || "",
+    features: ensureArray(project.features),
+    technologies: ensureArray(project.technologies),
+    coverImage: project.coverImage || project.image || fallbackImage,
+    images: ensureArray(project.images),
+    liveUrl: project.liveUrl || "",
+    githubUrl: project.githubUrl || "",
+    completedAt: project.completedAt || project.completionDate || null,
+    isFeatured: Boolean(project.isFeatured),
+    isActive:
+      typeof project.isActive === "boolean"
+        ? project.isActive
+        : project.status === "inactive"
+          ? false
+          : true,
+  };
+};
+
 const ProjectDetailsPage = () => {
   const { slug } = useParams();
+
   const [project, setProject] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const normalizedProject = useMemo(() => normalizeProject(project), [project]);
+
   useEffect(() => {
-    getProjectBySlug(slug).then((response) => {
-      setProject(response.data);
-      setIsLoading(false);
-    });
+    let mounted = true;
+
+    const fetchProject = async () => {
+      try {
+        setIsLoading(true);
+
+        const response = await getProjectBySlug(slug);
+        const projectData = getProjectFromResponse(response);
+
+        if (mounted) setProject(projectData);
+      } catch (error) {
+        if (mounted) {
+          setProject(null);
+          toast.error(
+            error?.response?.data?.message || "Failed to load project",
+          );
+        }
+      } finally {
+        if (mounted) setIsLoading(false);
+      }
+    };
+
+    if (slug) fetchProject();
+
+    return () => {
+      mounted = false;
+    };
   }, [slug]);
 
-  if (!isLoading && !project) {
+  if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+        <p className="text-slate-400">Loading project...</p>
+      </div>
+    );
+  }
+
+  if (!normalizedProject || !normalizedProject.isActive) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center px-4">
         <div className="text-center">
           <h1 className="text-4xl font-bold text-slate-100 mb-4">
             Project Not Found
           </h1>
+          <p className="text-slate-400 mb-6">
+            The project may be unavailable or inactive.
+          </p>
           <Link to="/projects">
             <Button variant="outline">Back to Projects</Button>
           </Link>
@@ -33,13 +141,13 @@ const ProjectDetailsPage = () => {
     );
   }
 
-  if (isLoading) {
-    return <div className="min-h-screen bg-slate-950" />;
-  }
+  const galleryImages = [
+    normalizedProject.coverImage,
+    ...normalizedProject.images,
+  ].filter(Boolean);
 
   return (
     <div className="min-h-screen">
-      {/* Hero */}
       <section className="pt-32 pb-16 bg-slate-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <Link
@@ -55,44 +163,49 @@ const ProjectDetailsPage = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
             >
-              <div className="flex items-center gap-4 mb-6">
+              <div className="flex flex-wrap items-center gap-4 mb-6">
                 <span className="px-3 py-1 rounded-full bg-cyan-500/20 border border-cyan-500/30 text-cyan-400 text-sm font-medium">
-                  {project.category}
+                  {normalizedProject.category}
                 </span>
-                <span
-                  className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    project.status === "completed"
-                      ? "bg-green-500/20 border border-green-500/30 text-green-400"
-                      : "bg-yellow-500/20 border border-yellow-500/30 text-yellow-400"
-                  }`}
-                >
-                  {project.status === "completed" ? "Completed" : "In Progress"}
-                </span>
+
+                {normalizedProject.isFeatured && (
+                  <span className="px-3 py-1 rounded-full bg-yellow-500/20 border border-yellow-500/30 text-yellow-400 text-sm font-medium">
+                    Featured
+                  </span>
+                )}
               </div>
 
               <h1 className="text-4xl md:text-5xl font-bold text-slate-100 mb-4">
-                {project.title}
+                {normalizedProject.title}
               </h1>
 
               <p className="text-lg text-slate-400 mb-6">
-                {project.shortDescription}
+                {normalizedProject.shortDescription}
               </p>
 
               <div className="flex flex-wrap gap-4 mb-8">
                 <div className="flex items-center gap-2 text-slate-400">
                   <Calendar className="w-5 h-5 text-cyan-500" />
-                  <span>Completed: {project.completionDate}</span>
+                  <span>
+                    Completed: {formatDate(normalizedProject.completedAt)}
+                  </span>
                 </div>
+
                 <div className="flex items-center gap-2 text-slate-400">
-                  <span className="text-slate-500">Duration:</span>
-                  <span>{project.duration}</span>
+                  <User className="w-5 h-5 text-cyan-500" />
+                  <span>{normalizedProject.clientName}</span>
+                </div>
+
+                <div className="flex items-center gap-2 text-slate-400">
+                  <Tag className="w-5 h-5 text-cyan-500" />
+                  <span>{normalizedProject.category}</span>
                 </div>
               </div>
 
-              <div className="flex gap-4">
-                {project.liveUrl && (
+              <div className="flex flex-wrap gap-4">
+                {normalizedProject.liveUrl && (
                   <a
-                    href={project.liveUrl}
+                    href={normalizedProject.liveUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -101,6 +214,22 @@ const ProjectDetailsPage = () => {
                     </Button>
                   </a>
                 )}
+
+                {normalizedProject.githubUrl && (
+                  <a
+                    href={normalizedProject.githubUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Button variant="outline">
+                      <span className="inline-flex items-center gap-2">
+                        <FaGithub className="text-base" />
+                        GitHub
+                      </span>
+                    </Button>
+                  </a>
+                )}
+
                 <Link to="/contact">
                   <Button variant="outline">Start Similar Project</Button>
                 </Link>
@@ -113,76 +242,145 @@ const ProjectDetailsPage = () => {
               className="glass rounded-2xl overflow-hidden border border-slate-700/50"
             >
               <img
-                src={project.image}
-                alt={project.title}
+                src={normalizedProject.coverImage}
+                alt={normalizedProject.title}
                 className="w-full h-80 object-cover"
+                onError={(e) => {
+                  e.currentTarget.src = fallbackImage;
+                }}
               />
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Description */}
       <section className="py-16 md:py-20 bg-slate-950">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl">
             <SectionHeader title="Project Overview" className="mb-8" />
-            <p className="text-lg text-slate-400 leading-relaxed">
-              {project.description}
+            <p className="text-lg text-slate-400 leading-relaxed whitespace-pre-line">
+              {normalizedProject.description}
             </p>
           </div>
         </div>
       </section>
 
-      {/* Technologies */}
-      <section className="py-16 md:py-20 bg-slate-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionHeader
-            subtitle="Tech Stack"
-            title="Technologies Used"
-            className="mb-12"
-          />
+      {(normalizedProject.problem || normalizedProject.solution) && (
+        <section className="py-16 md:py-20 bg-slate-900">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid md:grid-cols-2 gap-6">
+              {normalizedProject.problem && (
+                <div className="glass rounded-2xl p-6 border border-slate-700/50">
+                  <h2 className="text-2xl font-bold text-slate-100 mb-4">
+                    Problem
+                  </h2>
+                  <p className="text-slate-400 leading-relaxed whitespace-pre-line">
+                    {normalizedProject.problem}
+                  </p>
+                </div>
+              )}
 
-          <div className="flex flex-wrap gap-3">
-            {project.technologies?.map((tech, index) => (
-              <motion.span
-                key={tech}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.05 }}
-                className="px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 text-slate-300"
-              >
-                {tech}
-              </motion.span>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Client */}
-      <section className="py-16 md:py-20 bg-slate-950">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="glass rounded-2xl p-8 border border-slate-700/50">
-            <div className="grid md:grid-cols-2 gap-8 items-center">
-              <div>
-                <p className="text-sm text-slate-500 mb-2">Client</p>
-                <h3 className="text-2xl font-semibold text-slate-100">
-                  {project.client}
-                </h3>
-              </div>
-              <div className="text-right">
-                <p className="text-sm text-slate-500 mb-2">Project Status</p>
-                <p className="text-2xl font-semibold text-cyan-500 capitalize">
-                  {project.status}
-                </p>
-              </div>
+              {normalizedProject.solution && (
+                <div className="glass rounded-2xl p-6 border border-slate-700/50">
+                  <h2 className="text-2xl font-bold text-slate-100 mb-4">
+                    Solution
+                  </h2>
+                  <p className="text-slate-400 leading-relaxed whitespace-pre-line">
+                    {normalizedProject.solution}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
-      {/* CTA */}
+      {normalizedProject.features.length > 0 && (
+        <section className="py-16 md:py-20 bg-slate-950">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <SectionHeader
+              subtitle="Key Capabilities"
+              title="Project Features"
+              className="mb-12"
+            />
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {normalizedProject.features.map((feature, index) => (
+                <motion.div
+                  key={`${feature}-${index}`}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.06 }}
+                  className="glass rounded-xl p-6 border border-slate-700/50"
+                >
+                  <CheckCircle2 className="w-6 h-6 text-cyan-500 mb-4" />
+                  <h3 className="text-lg font-semibold text-slate-100">
+                    {feature}
+                  </h3>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {normalizedProject.technologies.length > 0 && (
+        <section className="py-16 md:py-20 bg-slate-900">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <SectionHeader
+              subtitle="Tech Stack"
+              title="Technologies Used"
+              className="mb-12"
+            />
+
+            <div className="flex flex-wrap gap-3">
+              {normalizedProject.technologies.map((tech, index) => (
+                <motion.span
+                  key={`${tech}-${index}`}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.05 }}
+                  className="px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 text-slate-300"
+                >
+                  {tech}
+                </motion.span>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {galleryImages.length > 1 && (
+        <section className="py-16 md:py-20 bg-slate-950">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <SectionHeader title="Project Gallery" className="mb-12" />
+
+            <div className="grid md:grid-cols-2 gap-6">
+              {galleryImages.map((image, index) => (
+                <motion.div
+                  key={`${image}-${index}`}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  className="glass rounded-2xl overflow-hidden border border-slate-700/50"
+                >
+                  <img
+                    src={image}
+                    alt={`${normalizedProject.title} ${index + 1}`}
+                    className="w-full h-72 object-cover"
+                    onError={(e) => {
+                      e.currentTarget.src = fallbackImage;
+                    }}
+                  />
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       <section className="py-16 md:py-20 bg-slate-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="glass rounded-2xl p-8 md:p-12 border border-slate-700/50 text-center">
