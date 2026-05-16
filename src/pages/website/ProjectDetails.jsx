@@ -216,61 +216,66 @@ const ProjectDetailsPage = () => {
         structuredData={projectSchema}
       />
 
-      <section className="pt-32 pb-16 bg-slate-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="relative overflow-hidden bg-slate-950 pt-28 pb-14 md:pt-32 md:pb-16">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_12%_8%,rgba(6,182,212,0.22),transparent_30%),radial-gradient(circle_at_86%_16%,rgba(59,130,246,0.14),transparent_28%),linear-gradient(135deg,rgba(15,23,42,0.88),rgba(2,6,23,0.98))]" />
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-400/40 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-slate-700/80 to-transparent" />
+
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <Link
             to="/projects"
-            className="inline-flex items-center gap-2 text-slate-400 hover:text-cyan-500 mb-8 transition-colors"
+            className="mb-8 inline-flex items-center gap-2 rounded-full border border-slate-800 bg-slate-900/70 px-4 py-2 text-sm font-medium text-slate-300 transition-colors hover:border-cyan-500/40 hover:text-cyan-300"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Projects
           </Link>
 
-          <div className="grid lg:grid-cols-2 gap-12 items-start">
+          <div className="grid gap-10 lg:grid-cols-[0.94fr_1.06fr] lg:items-center xl:gap-14">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.45 }}
             >
-              <div className="flex flex-wrap items-center gap-4 mb-6">
-                <span className="px-3 py-1 rounded-full bg-cyan-500/20 border border-cyan-500/30 text-cyan-400 text-sm font-medium">
+              <div className="mb-5 flex flex-wrap items-center gap-2.5">
+                <span className="rounded-full border border-cyan-500/30 bg-cyan-500/15 px-3 py-1 text-xs font-semibold text-cyan-200">
                   {normalizedProject.category}
                 </span>
 
                 {normalizedProject.isFeatured && (
-                  <span className="px-3 py-1 rounded-full bg-yellow-500/20 border border-yellow-500/30 text-yellow-400 text-sm font-medium">
+                  <span className="rounded-full border border-yellow-500/30 bg-yellow-500/15 px-3 py-1 text-xs font-semibold text-yellow-300">
                     Featured
                   </span>
                 )}
               </div>
 
-              <h1 className="text-4xl md:text-5xl font-bold text-slate-100 mb-4">
+              <h1 className="max-w-3xl text-3xl font-bold leading-[1.15] text-slate-50 sm:text-4xl lg:text-5xl">
                 {normalizedProject.title}
               </h1>
 
-              <p className="text-lg text-slate-400 mb-6">
+              <p className="mt-5 max-w-2xl text-base leading-8 text-slate-300 md:text-lg">
                 {normalizedProject.shortDescription}
               </p>
 
-              <div className="flex flex-wrap gap-4 mb-8">
-                <div className="flex items-center gap-2 text-slate-400">
-                  <Calendar className="w-5 h-5 text-cyan-500" />
+              <div className="mt-7 flex flex-wrap items-center gap-3 text-sm text-slate-400">
+                <div className="flex min-h-12 items-center gap-2 rounded-2xl border border-slate-800 bg-slate-900/65 px-4 py-3">
+                  <Calendar className="w-4 h-4 text-cyan-400" />
                   <span>
                     Completed: {formatDate(normalizedProject.completedAt)}
                   </span>
                 </div>
 
-                <div className="flex items-center gap-2 text-slate-400">
-                  <User className="w-5 h-5 text-cyan-500" />
+                <div className="flex min-h-12 items-center gap-2 rounded-2xl border border-slate-800 bg-slate-900/65 px-4 py-3">
+                  <User className="w-4 h-4 text-cyan-400" />
                   <span>{normalizedProject.clientName}</span>
                 </div>
 
-                <div className="flex items-center gap-2 text-slate-400">
-                  <Tag className="w-5 h-5 text-cyan-500" />
+                <div className="flex min-h-12 items-center gap-2 rounded-2xl border border-slate-800 bg-slate-900/65 px-4 py-3">
+                  <Tag className="w-4 h-4 text-cyan-400" />
                   <span>{normalizedProject.category}</span>
                 </div>
               </div>
 
-              <div className="flex flex-wrap gap-4">
+              <div className="mt-8 flex flex-wrap gap-3">
                 {normalizedProject.liveUrl && (
                   <a
                     href={normalizedProject.liveUrl}
@@ -307,20 +312,23 @@ const ProjectDetailsPage = () => {
                 title={normalizedProject.title}
                 text={projectDescription}
                 url={projectUrl}
-                className="mt-8"
+                className="mt-6"
                 label="Share this project"
+                compact
               />
             </motion.div>
 
             <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="glass rounded-2xl overflow-hidden border border-slate-700/50"
+              initial={{ opacity: 0, scale: 0.97 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.45, delay: 0.1 }}
+              className="relative overflow-hidden rounded-3xl border border-slate-700/60 bg-slate-900/70 p-2 shadow-2xl shadow-cyan-950/30"
             >
+              <div className="absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300/70 to-transparent" />
               <img
                 src={normalizedProject.coverImage}
                 alt={normalizedProject.title}
-                className="w-full h-80 object-cover"
+                className="h-72 w-full rounded-2xl object-cover md:h-[26rem] lg:h-[29rem]"
                 onError={(e) => {
                   e.currentTarget.src = fallbackImage;
                 }}
