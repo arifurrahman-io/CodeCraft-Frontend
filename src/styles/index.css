@@ -54,7 +54,7 @@
   }
 
   .card {
-    @apply bg-slate-800/50 border border-slate-700/50 rounded-xl backdrop-blur-sm;
+    @apply bg-slate-800/50 border border-slate-700/50 rounded-lg backdrop-blur-sm;
   }
 
   .glass {

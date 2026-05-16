@@ -15,7 +15,7 @@ import {
   FaFacebookF,
   FaLinkedinIn,
   FaGithub,
-  FaWhatsapp,
+  FaTwitter,
 } from "react-icons/fa";
 
 import Button from "@/components/common/Button";
@@ -28,13 +28,16 @@ import { getSettings } from "@/services/settingsService";
 const defaultCompany = {
   ...COMPANY,
   name: COMPANY?.name || "CodeCraft.BD",
-  email: COMPANY?.email || "hello@codecraftbd.com",
+  email: COMPANY?.email || "hello.codecraftbd@gmail.com",
   phone: COMPANY?.phone || "+8801XXXXXXXXX",
   address: COMPANY?.address || "Dhaka, Bangladesh",
-  facebook: COMPANY?.facebook || "",
-  linkedin: COMPANY?.linkedin || "",
-  github: COMPANY?.github || "",
-  whatsapp: COMPANY?.whatsapp || "",
+};
+
+const defaultSocial = {
+  facebook: "",
+  twitter: "",
+  linkedin: "",
+  github: "",
 };
 
 const initialForm = {
@@ -69,6 +72,7 @@ const budgetRanges = [
 const ContactPage = () => {
   const [formData, setFormData] = useState(initialForm);
   const [company, setCompany] = useState(defaultCompany);
+  const [social, setSocial] = useState(defaultSocial);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [loadingSettings, setLoadingSettings] = useState(true);
@@ -79,15 +83,22 @@ const ContactPage = () => {
     const loadSettings = async () => {
       try {
         const response = await getSettings();
-        const companyData =
-          response?.data?.company ||
-          response?.data?.data?.company ||
-          response?.data?.settings?.company;
+        const settingsData =
+          response?.data?.settings || response?.data?.data?.settings || response?.data;
+        const companyData = settingsData?.company;
+        const socialData = settingsData?.social;
 
         if (mounted && companyData) {
           setCompany((prev) => ({
             ...prev,
             ...companyData,
+          }));
+        }
+
+        if (mounted && socialData) {
+          setSocial((prev) => ({
+            ...prev,
+            ...socialData,
           }));
         }
       } finally {
@@ -178,18 +189,16 @@ const ContactPage = () => {
     [company],
   );
 
-  const socialLinks = [
-    { icon: FaFacebookF, href: company.facebook, label: "Facebook" },
-    { icon: FaLinkedinIn, href: company.linkedin, label: "LinkedIn" },
-    { icon: FaGithub, href: company.github, label: "GitHub" },
-    {
-      icon: FaWhatsapp,
-      href: company.whatsapp
-        ? `https://wa.me/${company.whatsapp.replace(/\D/g, "")}`
-        : "",
-      label: "WhatsApp",
-    },
-  ].filter((item) => item.href);
+  const socialLinks = useMemo(
+    () =>
+      [
+        { icon: FaFacebookF, href: social.facebook, label: "Facebook" },
+        { icon: FaTwitter, href: social.twitter, label: "Twitter" },
+        { icon: FaLinkedinIn, href: social.linkedin, label: "LinkedIn" },
+        { icon: FaGithub, href: social.github, label: "GitHub" },
+      ].filter((item) => item.href),
+    [social],
+  );
 
   return (
     <div className="min-h-screen">

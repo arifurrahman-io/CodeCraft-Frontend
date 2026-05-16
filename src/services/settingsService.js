@@ -5,6 +5,8 @@ const toFrontendSettings = (settings = {}) => {
     return settings;
   }
 
+  const statistics = settings.statistics || {};
+
   return {
     ...settings,
     company: {
@@ -26,11 +28,28 @@ const toFrontendSettings = (settings = {}) => {
       title: settings.seoTitle || settings.title || "",
       description: settings.seoDescription || settings.description || "",
       keywords: settings.keywords || "",
+      ogImage: settings.ogImage || "",
     },
     branding: {
+      logo: settings.logo || "",
+      favicon: settings.favicon || "",
       primaryColor: settings.primaryColor || "#06b6d4",
-      secondaryColor: settings.secondaryColor || "#2563eb",
+      secondaryColor: settings.secondaryColor || "#1e293b",
       accentColor: settings.accentColor || "#8b5cf6",
+    },
+    statistics: {
+      yearsExperience: statistics.yearsExperience || settings.yearsExperience || "",
+      businessStartYear:
+        statistics.businessStartYear || settings.businessStartYear || "",
+      projectsCompleted:
+        statistics.projectsCompleted || settings.projectsCompleted || "",
+      happyClients: statistics.happyClients || settings.happyClients || "",
+      industriesServed:
+        statistics.industriesServed || settings.industriesServed || "",
+      expertsTeam: statistics.expertsTeam || settings.expertsTeam || "",
+      projectSuccess: statistics.projectSuccess || settings.projectSuccess || "",
+      supportAvailability:
+        statistics.supportAvailability || settings.supportAvailability || "",
     },
   };
 };
@@ -52,10 +71,14 @@ const toApiSettings = (settings = {}) => {
     seoTitle: settings.seo?.title,
     seoDescription: settings.seo?.description,
     keywords: settings.seo?.keywords,
+    ogImage: settings.seo?.ogImage,
+    logo: settings.branding?.logo,
+    favicon: settings.branding?.favicon,
     footerText: settings.company?.description,
     primaryColor: settings.branding?.primaryColor,
     secondaryColor: settings.branding?.secondaryColor,
     accentColor: settings.branding?.accentColor,
+    statistics: settings.statistics,
   };
 
   return Object.fromEntries(
@@ -72,7 +95,10 @@ export const getSettings = async () => {
 };
 
 export const updateSettings = (settingsData) =>
-  request(api.put("/settings", toApiSettings(settingsData)));
+  request(api.put("/settings", toApiSettings(settingsData))).then((response) => ({
+    ...response,
+    data: toFrontendSettings(response.data),
+  }));
 
 export { api };
 

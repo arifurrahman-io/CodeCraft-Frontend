@@ -9,6 +9,9 @@ import ProjectDetailsPage from "@/pages/website/ProjectDetails";
 import BlogsPage from "@/pages/website/Blogs";
 import BlogDetailsPage from "@/pages/website/BlogDetails";
 import ContactPage from "@/pages/website/Contact";
+import SubmitCvPage from "@/pages/website/SubmitCv";
+import PrivacyPage from "@/pages/website/Privacy";
+import TermsPage from "@/pages/website/Terms";
 import NotFoundPage from "@/pages/website/NotFound";
 
 const WebsiteRoutes = () => {
@@ -24,6 +27,9 @@ const WebsiteRoutes = () => {
         <Route path="/blogs" element={<BlogsPage />} />
         <Route path="/blogs/:slug" element={<BlogDetailsPage />} />
         <Route path="/contact" element={<ContactPage />} />
+        <Route path="/submit-cv" element={<SubmitCvPage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/terms" element={<TermsPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

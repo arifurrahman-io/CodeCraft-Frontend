@@ -18,6 +18,7 @@ import {
 import { toast } from "sonner";
 
 import Button from "@/components/common/Button";
+import SEO from "@/components/common/SEO";
 import SectionHeader from "@/components/common/SectionHeader";
 import { getServiceBySlug } from "@/services/serviceService";
 
@@ -206,9 +207,36 @@ const ServiceDetailsPage = () => {
   }
 
   const serviceIcon = iconMap[normalizedService.icon] || iconMap.Globe;
+  const serviceSchema = {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    name: normalizedService.title,
+    description: normalizedService.seoDescription,
+    image: normalizedService.image,
+    provider: {
+      "@type": "Organization",
+      name: "CodeCraft.BD",
+    },
+    areaServed: "Worldwide",
+    serviceType: normalizedService.title,
+  };
 
   return (
     <div className="min-h-screen">
+      <SEO
+        title={normalizedService.seoTitle}
+        description={normalizedService.seoDescription}
+        keywords={[
+          normalizedService.title,
+          ...normalizedService.features,
+          ...normalizedService.technologies,
+        ].join(", ")}
+        image={normalizedService.image}
+        path={`/services/${normalizedService.slug}`}
+        type="article"
+        structuredData={serviceSchema}
+      />
+
       <section className="pt-32 pb-16 bg-slate-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <Link

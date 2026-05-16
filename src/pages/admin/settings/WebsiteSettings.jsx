@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import Button from "@/components/common/Button";
 import Input from "@/components/common/Input";
 import TextArea from "@/components/common/TextArea";
+import ImageUploader from "@/components/admin/ImageUploader";
 import { SETTINGS_DATA } from "@/utils/dummyData";
 import { getSettings, updateSettings } from "@/services/settingsService";
 
@@ -13,6 +14,7 @@ const mergeSettings = (settings = {}) => ({
   social: { ...SETTINGS_DATA.social, ...settings.social },
   seo: { ...SETTINGS_DATA.seo, ...settings.seo },
   branding: { ...SETTINGS_DATA.branding, ...settings.branding },
+  statistics: { ...SETTINGS_DATA.statistics, ...settings.statistics },
 });
 
 const WebsiteSettingsPage = () => {
@@ -37,7 +39,8 @@ const WebsiteSettingsPage = () => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      await updateSettings(formData);
+      const response = await updateSettings(formData);
+      setFormData(mergeSettings(response.data));
       toast.success("Settings saved successfully");
     } catch {
       toast.error("Failed to save settings");
@@ -142,6 +145,85 @@ const WebsiteSettingsPage = () => {
           </div>
         </div>
 
+        {/* Website Statistics */}
+        <div className="glass rounded-xl p-6 border border-slate-700/50 space-y-6">
+          <div>
+            <h2 className="text-lg font-semibold text-slate-100">
+              Website Statistics
+            </h2>
+            <p className="mt-1 text-sm text-slate-400">
+              Years experience is calculated from the business start year. Leave
+              collection-based fields empty to calculate them from live
+              projects, team, and testimonials.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            <Input
+              label="Business Start Year"
+              type="number"
+              min="1900"
+              value={formData.statistics.businessStartYear}
+              onChange={(e) =>
+                handleChange("statistics", "businessStartYear", e.target.value)
+              }
+              placeholder="2019"
+            />
+            <Input
+              label="Projects Completed"
+              value={formData.statistics.projectsCompleted}
+              onChange={(e) =>
+                handleChange("statistics", "projectsCompleted", e.target.value)
+              }
+              placeholder="Auto from projects"
+            />
+            <Input
+              label="Happy Clients"
+              value={formData.statistics.happyClients}
+              onChange={(e) =>
+                handleChange("statistics", "happyClients", e.target.value)
+              }
+              placeholder="Auto from testimonials"
+            />
+            <Input
+              label="Industries Served"
+              value={formData.statistics.industriesServed}
+              onChange={(e) =>
+                handleChange("statistics", "industriesServed", e.target.value)
+              }
+              placeholder="Auto from project categories"
+            />
+            <Input
+              label="Experts Team"
+              value={formData.statistics.expertsTeam}
+              onChange={(e) =>
+                handleChange("statistics", "expertsTeam", e.target.value)
+              }
+              placeholder="Auto from team members"
+            />
+            <Input
+              label="Project Success"
+              value={formData.statistics.projectSuccess}
+              onChange={(e) =>
+                handleChange("statistics", "projectSuccess", e.target.value)
+              }
+              placeholder="100%"
+            />
+            <Input
+              label="Support Availability"
+              value={formData.statistics.supportAvailability}
+              onChange={(e) =>
+                handleChange(
+                  "statistics",
+                  "supportAvailability",
+                  e.target.value,
+                )
+              }
+              placeholder="24/7"
+            />
+          </div>
+        </div>
+
         {/* SEO Settings */}
         <div className="glass rounded-xl p-6 border border-slate-700/50 space-y-6">
           <h2 className="text-lg font-semibold text-slate-100">SEO Settings</h2>
@@ -166,6 +248,42 @@ const WebsiteSettingsPage = () => {
         {/* Branding */}
         <div className="glass rounded-xl p-6 border border-slate-700/50 space-y-6">
           <h2 className="text-lg font-semibold text-slate-100">Branding</h2>
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="space-y-3">
+              <ImageUploader
+                label="Website Logo"
+                value={formData.branding.logo}
+                onChange={(logo) => handleChange("branding", "logo", logo || "")}
+                maxSize={2}
+              />
+              <Input
+                label="Logo URL"
+                value={formData.branding.logo}
+                onChange={(e) =>
+                  handleChange("branding", "logo", e.target.value)
+                }
+                placeholder="https://example.com/logo.png"
+              />
+            </div>
+            <div className="space-y-3">
+              <ImageUploader
+                label="Fav Icon"
+                value={formData.branding.favicon}
+                onChange={(favicon) =>
+                  handleChange("branding", "favicon", favicon || "")
+                }
+                maxSize={1}
+              />
+              <Input
+                label="Fav Icon URL"
+                value={formData.branding.favicon}
+                onChange={(e) =>
+                  handleChange("branding", "favicon", e.target.value)
+                }
+                placeholder="https://example.com/favicon.png"
+              />
+            </div>
+          </div>
           <div className="grid md:grid-cols-3 gap-6">
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">

@@ -16,7 +16,7 @@ const ImageUploader = ({
   const [preview, setPreview] = useState(value || null);
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-  const currentPreview = preview || value;
+  const currentPreview = value || preview;
 
   const handleFileSelect = async (files) => {
     const fileArray = Array.from(files);
@@ -92,7 +92,7 @@ const ImageUploader = ({
           relative border-2 border-dashed rounded-xl transition-all duration-200
           ${isDragging ? "border-cyan-500 bg-cyan-500/10" : ""}
           ${error ? "border-red-500" : "border-slate-700"}
-          ${preview ? "border-solid" : ""}
+          ${currentPreview ? "border-solid" : ""}
         `}
         onDrop={handleDrop}
         onDragOver={handleDragOver}

@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import Button from "@/components/common/Button";
+import { useWebsiteStats } from "@/hooks/useWebsiteStats";
 
 const CTASection = ({
   title = "Ready to Transform Your Business?",
@@ -11,6 +12,8 @@ const CTASection = ({
   secondaryCtaText = "View Our Work",
   secondaryCtaLink = "/projects",
 }) => {
+  const { stats } = useWebsiteStats();
+
   return (
     <section className="py-16 md:py-20 relative overflow-hidden">
       {/* Background */}
@@ -59,10 +62,16 @@ const CTASection = ({
             {/* Stats */}
             <div className="grid grid-cols-2 gap-4">
               {[
-                { number: "50+", label: "Projects Completed" },
-                { number: "5+", label: "Years Experience" },
-                { number: "30+", label: "Happy Clients" },
-                { number: "24/7", label: "Support Available" },
+                {
+                  number: stats.projectsCompleted,
+                  label: "Projects Completed",
+                },
+                { number: stats.yearsExperience, label: "Years Experience" },
+                { number: stats.happyClients, label: "Happy Clients" },
+                {
+                  number: stats.supportAvailability,
+                  label: "Support Available",
+                },
               ].map((stat, index) => (
                 <motion.div
                   key={stat.label}

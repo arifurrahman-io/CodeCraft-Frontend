@@ -676,7 +676,7 @@ export const SETTINGS_DATA = {
     tagline: "Building Digital Excellence",
     description:
       "We craft premium software solutions that transform businesses. From web applications to mobile apps, we bring your digital vision to life.",
-    email: "hello@codecraft.bd",
+    email: "hello.codecraftbd@gmail.com",
     phone: "+880 1234 567890",
     address: "Dhaka, Bangladesh",
     website: "https://codecraft.bd",
@@ -698,8 +698,20 @@ export const SETTINGS_DATA = {
       "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200",
   },
   branding: {
+    logo: "",
+    favicon: "",
     primaryColor: "#06b6d4",
     secondaryColor: "#1e293b",
     accentColor: "#8b5cf6",
+  },
+  statistics: {
+    yearsExperience: "",
+    businessStartYear: "2019",
+    projectsCompleted: "",
+    happyClients: "",
+    industriesServed: "",
+    expertsTeam: "",
+    projectSuccess: "100%",
+    supportAvailability: "24/7",
   },
 };

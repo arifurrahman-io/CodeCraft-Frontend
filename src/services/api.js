@@ -94,6 +94,8 @@ export const normalizeId = (item) => {
     thumbnail: getAssetUrl(item.thumbnail),
     avatar: getAssetUrl(item.avatar),
     logo: getAssetUrl(item.logo),
+    favicon: getAssetUrl(item.favicon),
+    ogImage: getAssetUrl(item.ogImage),
     coverImage: getAssetUrl(item.coverImage),
     author,
     _id: item._id || item.id,

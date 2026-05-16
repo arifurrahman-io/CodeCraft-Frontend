@@ -52,8 +52,6 @@ const TestimonialListPage = () => {
 
   const fetchTestimonials = useCallback(async () => {
     try {
-      setIsLoading(true);
-
       const response = await getAllTestimonials();
       const data = getTestimonialsFromResponse(response)
         .map(normalizeTestimonial)
@@ -71,7 +69,11 @@ const TestimonialListPage = () => {
   }, []);
 
   useEffect(() => {
-    fetchTestimonials();
+    const timeoutId = window.setTimeout(() => {
+      fetchTestimonials();
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
   }, [fetchTestimonials]);
 
   const handleDelete = async (id) => {

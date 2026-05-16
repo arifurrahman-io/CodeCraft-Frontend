@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { motion } from "framer-motion";
@@ -17,6 +17,7 @@ import { getFeaturedServices } from "@/services/serviceService";
 import { getFeaturedProjects } from "@/services/projectService";
 import { getAllBlogs } from "@/services/blogService";
 import { getAllTestimonials } from "@/services/testimonialService";
+import { useWebsiteStats } from "@/hooks/useWebsiteStats";
 
 const getArray = (response) => {
   if (Array.isArray(response)) return response;
@@ -74,6 +75,7 @@ const HomePage = () => {
   const [latestBlogs, setLatestBlogs] = useState([]);
   const [testimonials, setTestimonials] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { stats } = useWebsiteStats();
 
   useEffect(() => {
     let mounted = true;
@@ -130,6 +132,27 @@ const HomePage = () => {
     };
   }, []);
 
+  const whyChooseItems = useMemo(
+    () => [
+      `Expert team with ${stats.yearsExperience} years of experience`,
+      "Modern UI/UX focused solutions",
+      "Transparent communication & regular updates",
+      "Post-launch support & maintenance",
+      "Competitive pricing with no hidden costs",
+    ],
+    [stats.yearsExperience],
+  );
+
+  const homeStats = useMemo(
+    () => [
+      { number: stats.projectsCompleted, label: "Projects Completed" },
+      { number: stats.yearsExperience, label: "Years Experience" },
+      { number: stats.happyClients, label: "Happy Clients" },
+      { number: stats.projectSuccess, label: "Project Success" },
+    ],
+    [stats],
+  );
+
   return (
     <div className="min-h-screen">
       <HeroSection />
@@ -182,13 +205,7 @@ const HomePage = () => {
               </p>
 
               <div className="space-y-4">
-                {[
-                  "Expert team with 5+ years of experience",
-                  "Modern UI/UX focused solutions",
-                  "Transparent communication & regular updates",
-                  "Post-launch support & maintenance",
-                  "Competitive pricing with no hidden costs",
-                ].map((item, index) => (
+                {whyChooseItems.map((item, index) => (
                   <motion.div
                     key={item}
                     initial={{ opacity: 0, x: -15 }}
@@ -205,12 +222,7 @@ const HomePage = () => {
             </motion.div>
 
             <div className="grid grid-cols-2 gap-4">
-              {[
-                { number: "50+", label: "Projects Completed" },
-                { number: "5+", label: "Years Experience" },
-                { number: "30+", label: "Happy Clients" },
-                { number: "100%", label: "Project Success" },
-              ].map((stat) => (
+              {homeStats.map((stat) => (
                 <div
                   key={stat.label}
                   className="glass rounded-xl p-6 border border-slate-700/50 text-center"

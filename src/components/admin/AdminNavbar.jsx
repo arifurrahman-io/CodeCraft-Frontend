@@ -24,6 +24,7 @@ const AdminNavbar = ({ onMenuClick, isSidebarCollapsed }) => {
     if (path.startsWith("/admin/team")) return "Team";
     if (path.startsWith("/admin/testimonials")) return "Testimonials";
     if (path.startsWith("/admin/messages")) return "Messages";
+    if (path.startsWith("/admin/cv-submissions")) return "CV Submissions";
     if (path.startsWith("/admin/settings")) return "Settings";
     return "Admin";
   };

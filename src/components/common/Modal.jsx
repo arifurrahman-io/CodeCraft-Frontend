@@ -51,7 +51,7 @@ const Modal = ({
           className={`
             relative w-full ${sizes[size]} 
             bg-slate-800 border border-slate-700 rounded-xl 
-            shadow-2xl transform transition-all
+            shadow-2xl transform transition-all overflow-hidden
             animate-scale-in
           `}
           onClick={(e) => e.stopPropagation()}

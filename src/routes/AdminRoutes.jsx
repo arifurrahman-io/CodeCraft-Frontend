@@ -15,6 +15,8 @@ import TestimonialListPage from "@/pages/admin/testimonials/TestimonialList";
 import TestimonialFormPage from "@/pages/admin/testimonials/TestimonialForm";
 import MessageListPage from "@/pages/admin/messages/MessageList";
 import MessageDetailsPage from "@/pages/admin/messages/MessageDetails";
+import CvSubmissionListPage from "@/pages/admin/cv/CvSubmissionList";
+import CvSubmissionDetailsPage from "@/pages/admin/cv/CvSubmissionDetails";
 import WebsiteSettingsPage from "@/pages/admin/settings/WebsiteSettings";
 
 const AdminRoutes = () => {
@@ -57,6 +59,12 @@ const AdminRoutes = () => {
 
           <Route path="messages" element={<MessageListPage />} />
           <Route path="messages/:id" element={<MessageDetailsPage />} />
+
+          <Route path="cv-submissions" element={<CvSubmissionListPage />} />
+          <Route
+            path="cv-submissions/:id"
+            element={<CvSubmissionDetailsPage />}
+          />
 
           <Route path="settings" element={<WebsiteSettingsPage />} />
         </Route>

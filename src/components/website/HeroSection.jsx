@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import Button from '@/components/common/Button';
 import { COMPANY } from '@/utils/constants';
 import { getSettings } from '@/services/settingsService';
+import { useWebsiteStats } from '@/hooks/useWebsiteStats';
 
 const HeroSection = ({
   title = 'Building Digital Excellence',
@@ -22,6 +23,7 @@ const HeroSection = ({
   ],
 }) => {
   const [company, setCompany] = useState(COMPANY);
+  const { stats } = useWebsiteStats();
 
   useEffect(() => {
     getSettings().then((response) => {
@@ -201,7 +203,9 @@ const HeroSection = ({
                     <span className="text-cyan-500 text-xl">⚡</span>
                   </div>
                   <div>
-                    <p className="text-sm text-slate-300">50+ Projects</p>
+                    <p className="text-sm text-slate-300">
+                      {stats.projectsCompleted} Projects
+                    </p>
                     <p className="text-xs text-slate-500">Completed</p>
                   </div>
                 </div>

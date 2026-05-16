@@ -21,7 +21,7 @@ const ConfirmDialog = ({
         onClick={onClose}
       />
       <div className="flex min-h-full items-center justify-center p-4">
-        <div className="relative w-full max-w-md bg-slate-800 border border-slate-700 rounded-xl shadow-2xl animate-scale-in">
+        <div className="relative w-full max-w-md overflow-hidden rounded-xl border border-slate-700 bg-slate-800 shadow-2xl animate-scale-in">
           <button
             onClick={onClose}
             className="absolute top-4 right-4 p-1 rounded-lg text-slate-400 hover:text-slate-100 hover:bg-slate-700 transition-colors"

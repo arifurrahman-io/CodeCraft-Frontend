@@ -369,15 +369,21 @@ const ProjectFormPage = () => {
             name="description"
             value={formData.description}
             onChange={handleChange}
-            rows={5}
+            placeholder={`Describe the project in multiple paragraphs.\n\nUse a blank line between paragraphs for better public page formatting.`}
+            rows={10}
           />
+          <p className="text-sm text-slate-500">
+            Multiple description paragraphs are supported. Add a blank line
+            between paragraphs for clean spacing on the public project page.
+          </p>
 
           <TextArea
             label="Problem"
             name="problem"
             value={formData.problem}
             onChange={handleChange}
-            rows={4}
+            placeholder={`Explain the client problem.\n\nUse blank lines to separate paragraphs.`}
+            rows={6}
           />
 
           <TextArea
@@ -385,7 +391,8 @@ const ProjectFormPage = () => {
             name="solution"
             value={formData.solution}
             onChange={handleChange}
-            rows={4}
+            placeholder={`Explain the solution delivered.\n\nUse blank lines to separate paragraphs.`}
+            rows={6}
           />
         </div>
 

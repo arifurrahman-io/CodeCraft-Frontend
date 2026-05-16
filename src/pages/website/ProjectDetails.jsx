@@ -13,7 +13,9 @@ import { FaGithub } from "react-icons/fa";
 import { toast } from "sonner";
 
 import Button from "@/components/common/Button";
+import SEO from "@/components/common/SEO";
 import SectionHeader from "@/components/common/SectionHeader";
+import ShareActions from "@/components/common/ShareActions";
 import { getProjectBySlug } from "@/services/projectService";
 
 const fallbackImage =
@@ -67,6 +69,12 @@ const normalizeProject = (project) => {
     liveUrl: project.liveUrl || "",
     githubUrl: project.githubUrl || "",
     completedAt: project.completedAt || project.completionDate || null,
+    seoTitle: project.seoTitle || project.title || "",
+    seoDescription:
+      project.seoDescription ||
+      project.shortDescription ||
+      project.description ||
+      "",
     isFeatured: Boolean(project.isFeatured),
     isActive:
       typeof project.isActive === "boolean"
@@ -75,6 +83,28 @@ const normalizeProject = (project) => {
           ? false
           : true,
   };
+};
+
+const renderParagraphs = (text) => {
+  const paragraphs = String(text || "")
+    .split(/\n{2,}/)
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean);
+
+  if (!paragraphs.length) return null;
+
+  return (
+    <div className="space-y-6">
+      {paragraphs.map((paragraph, index) => (
+        <p
+          key={index}
+          className="whitespace-pre-line text-lg leading-9 text-slate-400"
+        >
+          {paragraph}
+        </p>
+      ))}
+    </div>
+  );
 };
 
 const ProjectDetailsPage = () => {
@@ -145,9 +175,47 @@ const ProjectDetailsPage = () => {
     normalizedProject.coverImage,
     ...normalizedProject.images,
   ].filter(Boolean);
+  const projectUrl =
+    typeof window !== "undefined"
+      ? window.location.href
+      : `https://codecraft.bd/projects/${normalizedProject.slug}`;
+  const projectDescription =
+    normalizedProject.seoDescription || normalizedProject.shortDescription;
+  const projectSchema = {
+    "@context": "https://schema.org",
+    "@type": "CreativeWork",
+    name: normalizedProject.title,
+    description: projectDescription,
+    image: normalizedProject.coverImage,
+    url: projectUrl,
+    creator: {
+      "@type": "Organization",
+      name: "CodeCraft.BD",
+    },
+    dateCreated: normalizedProject.completedAt,
+    keywords: [
+      normalizedProject.category,
+      ...normalizedProject.technologies,
+      ...normalizedProject.features,
+    ].join(", "),
+  };
 
   return (
     <div className="min-h-screen">
+      <SEO
+        title={normalizedProject.seoTitle || normalizedProject.title}
+        description={projectDescription}
+        keywords={[
+          normalizedProject.category,
+          ...normalizedProject.technologies,
+          ...normalizedProject.features,
+        ].join(", ")}
+        image={normalizedProject.coverImage}
+        path={`/projects/${normalizedProject.slug}`}
+        type="article"
+        structuredData={projectSchema}
+      />
+
       <section className="pt-32 pb-16 bg-slate-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <Link
@@ -234,6 +302,14 @@ const ProjectDetailsPage = () => {
                   <Button variant="outline">Start Similar Project</Button>
                 </Link>
               </div>
+
+              <ShareActions
+                title={normalizedProject.title}
+                text={projectDescription}
+                url={projectUrl}
+                className="mt-8"
+                label="Share this project"
+              />
             </motion.div>
 
             <motion.div
@@ -258,9 +334,7 @@ const ProjectDetailsPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl">
             <SectionHeader title="Project Overview" className="mb-8" />
-            <p className="text-lg text-slate-400 leading-relaxed whitespace-pre-line">
-              {normalizedProject.description}
-            </p>
+            {renderParagraphs(normalizedProject.description)}
           </div>
         </div>
       </section>
@@ -274,9 +348,7 @@ const ProjectDetailsPage = () => {
                   <h2 className="text-2xl font-bold text-slate-100 mb-4">
                     Problem
                   </h2>
-                  <p className="text-slate-400 leading-relaxed whitespace-pre-line">
-                    {normalizedProject.problem}
-                  </p>
+                  {renderParagraphs(normalizedProject.problem)}
                 </div>
               )}
 
@@ -285,9 +357,7 @@ const ProjectDetailsPage = () => {
                   <h2 className="text-2xl font-bold text-slate-100 mb-4">
                     Solution
                   </h2>
-                  <p className="text-slate-400 leading-relaxed whitespace-pre-line">
-                    {normalizedProject.solution}
-                  </p>
+                  {renderParagraphs(normalizedProject.solution)}
                 </div>
               )}
             </div>

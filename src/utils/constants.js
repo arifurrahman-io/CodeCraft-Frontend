@@ -4,7 +4,7 @@ export const COMPANY = {
   tagline: "Building Digital Excellence",
   description:
     "We craft premium software solutions that transform businesses. From web applications to mobile apps, we bring your digital vision to life.",
-  email: "hello@codecraft.bd",
+  email: "hello.codecraftbd@gmail.com",
   phone: "+880 1234 567890",
   address: "Dhaka, Bangladesh",
   website: "https://codecraft.bd",
@@ -21,6 +21,7 @@ export const NAV_LINKS = [
   { label: "Services", path: "/services" },
   { label: "Projects", path: "/projects" },
   { label: "Blogs", path: "/blogs" },
+  { label: "Submit CV", path: "/submit-cv" },
   { label: "Contact", path: "/contact" },
 ];
 
@@ -33,6 +34,7 @@ export const ADMIN_NAV_LINKS = [
   { label: "Team", path: "/admin/team", icon: "Users" },
   { label: "Testimonials", path: "/admin/testimonials", icon: "MessageSquare" },
   { label: "Messages", path: "/admin/messages", icon: "MessageSquare" },
+  { label: "CV Submissions", path: "/admin/cv-submissions", icon: "FileUser" },
   { label: "Settings", path: "/admin/settings", icon: "Settings" },
 ];
 

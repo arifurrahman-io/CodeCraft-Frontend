@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import ProjectCard from "@/components/website/ProjectCard";
 import CTASection from "@/components/website/CTASection";
 import { getAllProjects } from "@/services/projectService";
+import { useWebsiteStats } from "@/hooks/useWebsiteStats";
 
 const getProjectsFromResponse = (response) => {
   if (Array.isArray(response)) return response;
@@ -39,6 +40,7 @@ const ProjectsPage = () => {
   const [projects, setProjects] = useState([]);
   const [activeCategory, setActiveCategory] = useState("All");
   const [isLoading, setIsLoading] = useState(true);
+  const { stats } = useWebsiteStats();
 
   useEffect(() => {
     let mounted = true;
@@ -156,13 +158,13 @@ const ProjectsPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
-              { number: `${projects.length}+`, label: "Projects Completed" },
+              { number: stats.projectsCompleted, label: "Projects Completed" },
               {
                 number: `${Math.max(categories.length - 1, 0)}+`,
                 label: "Categories",
               },
-              { number: "30+", label: "Happy Clients" },
-              { number: "5+", label: "Years Experience" },
+              { number: stats.happyClients, label: "Happy Clients" },
+              { number: stats.yearsExperience, label: "Years Experience" },
             ].map((stat, index) => (
               <motion.div
                 key={stat.label}

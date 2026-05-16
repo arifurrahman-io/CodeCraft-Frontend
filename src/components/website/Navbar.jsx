@@ -1,15 +1,30 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { LayoutDashboard, LogIn, Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { COMPANY, NAV_LINKS } from "@/utils/constants";
 import { getSettings } from "@/services/settingsService";
+import { useAuth } from "@/hooks/useAuth";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [company, setCompany] = useState(COMPANY);
+  const [settings, setSettings] = useState({ company: COMPANY, branding: {} });
   const location = useLocation();
+  const { isAuthenticated } = useAuth();
+
+  const adminAction = isAuthenticated
+    ? {
+        label: "Dashboard",
+        path: "/admin/dashboard",
+        icon: LayoutDashboard,
+      }
+    : {
+        label: "Login",
+        path: "/admin/login",
+        icon: LogIn,
+      };
+  const AdminActionIcon = adminAction.icon;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -21,9 +36,25 @@ const Navbar = () => {
 
   useEffect(() => {
     getSettings().then((response) => {
-      if (response.data?.company) setCompany(response.data.company);
+      if (response.data) {
+        setSettings((prev) => ({
+          ...prev,
+          ...response.data,
+          company: {
+            ...prev.company,
+            ...response.data.company,
+          },
+          branding: {
+            ...prev.branding,
+            ...response.data.branding,
+          },
+        }));
+      }
     });
   }, []);
+
+  const company = settings.company || COMPANY;
+  const logo = settings.branding?.logo;
 
   const isActive = (path) => {
     if (path === "/") return location.pathname === "/";
@@ -42,12 +73,22 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
-              <span className="text-white font-bold text-lg">C</span>
-            </div>
-            <span className="text-xl font-bold text-slate-100">
-              {company.name}
-            </span>
+            {logo ? (
+              <img
+                src={logo}
+                alt={`${company.name} logo`}
+                className="h-8 max-w-56 object-contain md:h-12 md:max-w-64"
+              />
+            ) : (
+              <>
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
+                  <span className="text-white font-bold text-lg">C</span>
+                </div>
+                <span className="text-xl font-bold text-slate-100">
+                  {company.name}
+                </span>
+              </>
+            )}
           </Link>
 
           {/* Desktop Navigation */}
@@ -69,6 +110,13 @@ const Navbar = () => {
 
           {/* CTA Button */}
           <div className="hidden md:flex items-center gap-4">
+            <Link
+              to={adminAction.path}
+              className="inline-flex items-center gap-2 px-4 py-2.5 text-slate-300 rounded-lg font-medium hover:text-slate-100 hover:bg-slate-800 transition-colors"
+            >
+              <AdminActionIcon className="w-4 h-4" />
+              {adminAction.label}
+            </Link>
             <Link
               to="/contact"
               className="px-5 py-2.5 bg-cyan-500 text-slate-900 rounded-lg font-medium hover:bg-cyan-400 transition-colors"
@@ -116,8 +164,16 @@ const Navbar = () => {
                 </Link>
               ))}
               <Link
+                to={adminAction.path}
+                className="flex items-center justify-center gap-2 px-4 py-3 mt-4 border border-slate-700 text-slate-100 rounded-lg text-center font-medium"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <AdminActionIcon className="w-5 h-5" />
+                {adminAction.label}
+              </Link>
+              <Link
                 to="/contact"
-                className="block px-4 py-3 mt-4 bg-cyan-500 text-slate-900 rounded-lg text-center font-medium"
+                className="block px-4 py-3 bg-cyan-500 text-slate-900 rounded-lg text-center font-medium"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Get Started

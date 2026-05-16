@@ -11,7 +11,7 @@ import {
   GitBranch,
   Globe,
 } from "lucide-react";
-import { COMPANY, NAV_LINKS, SOCIAL_LINKS } from "@/utils/constants";
+import { COMPANY, NAV_LINKS } from "@/utils/constants";
 import { getSettings } from "@/services/settingsService";
 
 const socialIcons = {
@@ -21,29 +21,62 @@ const socialIcons = {
   Github: GitBranch,
 };
 
+const socialLinksConfig = [
+  { name: "Facebook", key: "facebook", icon: "Facebook" },
+  { name: "Twitter", key: "twitter", icon: "Twitter" },
+  { name: "LinkedIn", key: "linkedin", icon: "Linkedin" },
+  { name: "GitHub", key: "github", icon: "Github" },
+];
+
 const Footer = () => {
   const currentYear = new Date().getFullYear();
   const [settings, setSettings] = useState({
     company: COMPANY,
+    branding: {},
     social: {
-      facebook: COMPANY.facebook,
-      twitter: COMPANY.twitter,
-      linkedin: COMPANY.linkedin,
-      github: COMPANY.github,
+      facebook: "",
+      twitter: "",
+      linkedin: "",
+      github: "",
     },
   });
 
   useEffect(() => {
     getSettings().then((response) => {
-      if (response.data) setSettings(response.data);
+      const settingsData =
+        response?.data?.settings ||
+        response?.data?.data?.settings ||
+        response?.data;
+
+      if (settingsData) {
+        setSettings((prev) => ({
+          ...prev,
+          ...settingsData,
+          company: {
+            ...prev.company,
+            ...settingsData.company,
+          },
+          branding: {
+            ...prev.branding,
+            ...settingsData.branding,
+          },
+          social: {
+            ...prev.social,
+            ...settingsData.social,
+          },
+        }));
+      }
     });
   }, []);
 
   const company = settings.company || COMPANY;
-  const socialLinks = SOCIAL_LINKS.map((social) => ({
-    ...social,
-    url: settings.social?.[social.name.toLowerCase()] || social.url,
-  }));
+  const logo = settings.branding?.logo;
+  const socialLinks = socialLinksConfig
+    .map((social) => ({
+      ...social,
+      url: settings.social?.[social.key] || "",
+    }))
+    .filter((social) => social.url);
 
   return (
     <footer className="bg-slate-900 border-t border-slate-800">
@@ -53,16 +86,26 @@ const Footer = () => {
           {/* Company Info */}
           <div className="lg:col-span-1">
             <Link to="/" className="flex items-center gap-2 mb-6">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
-                <span className="text-white font-bold text-lg">C</span>
-              </div>
-              <span className="text-xl font-bold text-slate-100">
-                {company.name}
-              </span>
+              {logo ? (
+                <img
+                  src={logo}
+                  alt={`${company.name} logo`}
+                  className="h-8 max-w-60 object-contain md:h-12 md:max-w-72"
+                />
+              ) : (
+                <>
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
+                    <span className="text-white font-bold text-lg">C</span>
+                  </div>
+                  <span className="text-xl font-bold text-slate-100">
+                    {company.name}
+                  </span>
+                </>
+              )}
             </Link>
             <p className="text-slate-400 mb-6">{company.description}</p>
             <div className="flex items-center gap-4">
-              {socialLinks.map((social) => (
+              {socialLinks.map((social) =>
                 (() => {
                   const SocialIcon = socialIcons[social.icon] || Globe;
 
@@ -78,8 +121,8 @@ const Footer = () => {
                       <SocialIcon className="w-5 h-5" />
                     </a>
                   );
-                })()
-              ))}
+                })(),
+              )}
             </div>
           </div>
 

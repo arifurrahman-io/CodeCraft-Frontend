@@ -49,8 +49,6 @@ const MessageListPage = () => {
 
   const fetchMessages = useCallback(async () => {
     try {
-      setIsLoading(true);
-
       const response = await getAllMessages();
       const messageData =
         getMessagesFromResponse(response).map(normalizeMessage);
@@ -65,7 +63,11 @@ const MessageListPage = () => {
   }, []);
 
   useEffect(() => {
-    fetchMessages();
+    const timeoutId = window.setTimeout(() => {
+      fetchMessages();
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
   }, [fetchMessages]);
 
   const handleDelete = async (id) => {

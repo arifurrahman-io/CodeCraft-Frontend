@@ -4,20 +4,15 @@ import { motion } from "framer-motion";
 import {
   ArrowLeft,
   ArrowUpRight,
-  Briefcase,
   Calendar,
-  Check,
-  Copy,
   Eye,
-  Mail,
-  MessageCircle,
-  Send,
-  Share2,
   Tag,
 } from "lucide-react";
 import { toast } from "sonner";
 
 import Button from "@/components/common/Button";
+import SEO from "@/components/common/SEO";
+import ShareActions from "@/components/common/ShareActions";
 import { getAllBlogs, getBlogBySlug } from "@/services/blogService";
 
 const fallbackImage =
@@ -91,17 +86,12 @@ const formatDate = (date) => {
   });
 };
 
-const openShareWindow = (url) => {
-  window.open(url, "_blank", "noopener,noreferrer,width=720,height=560");
-};
-
 const BlogDetailsPage = () => {
   const { slug } = useParams();
 
   const [blog, setBlog] = useState(null);
   const [blogs, setBlogs] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [copied, setCopied] = useState(false);
 
   const normalizedBlog = useMemo(() => normalizeBlog(blog), [blog]);
 
@@ -110,7 +100,10 @@ const BlogDetailsPage = () => {
     [blogs],
   );
 
-  const articleUrl = typeof window !== "undefined" ? window.location.href : "";
+  const articleUrl =
+    typeof window !== "undefined"
+      ? window.location.href
+      : `https://codecraft.bd/blogs/${slug || ""}`;
 
   const readingTime = useMemo(() => {
     const words =
@@ -169,103 +162,59 @@ const BlogDetailsPage = () => {
     };
   }, [slug]);
 
-  const handleCopyLink = async () => {
-    if (!articleUrl) return;
-
-    try {
-      await navigator.clipboard.writeText(articleUrl);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1800);
-    } catch {
-      toast.error("Failed to copy link");
-    }
-  };
-
-  const shareItems = normalizedBlog
-    ? [
-        {
-          name: "Facebook",
-          icon: MessageCircle,
-          action: () =>
-            openShareWindow(
-              `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-                articleUrl,
-              )}`,
-            ),
-        },
-        {
-          name: "X",
-          icon: Send,
-          action: () =>
-            openShareWindow(
-              `https://twitter.com/intent/tweet?url=${encodeURIComponent(
-                articleUrl,
-              )}&text=${encodeURIComponent(normalizedBlog.title)}`,
-            ),
-        },
-        {
-          name: "LinkedIn",
-          icon: Briefcase,
-          action: () =>
-            openShareWindow(
-              `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
-                articleUrl,
-              )}`,
-            ),
-        },
-        {
-          name: "Email",
-          icon: Mail,
-          action: () => {
-            window.location.href = `mailto:?subject=${encodeURIComponent(
-              normalizedBlog.title,
-            )}&body=${encodeURIComponent(articleUrl)}`;
-          },
-        },
-      ]
-    : [];
-
   const renderContent = (content) => {
-    const lines = String(content || "").split("\n");
+    const blocks = String(content || "")
+      .split(/\n{2,}/)
+      .map((block) => block.trim())
+      .filter(Boolean);
 
-    return lines.map((line, index) => {
-      if (line.startsWith("## ")) {
+    return blocks.map((block, index) => {
+      if (block.startsWith("## ")) {
         return (
           <h2
             key={index}
-            className="mt-12 mb-5 text-3xl font-bold tracking-tight text-slate-100"
+            className="mt-12 mb-5 text-3xl font-bold leading-tight tracking-tight text-slate-100"
           >
-            {line.replace("## ", "")}
+            {block.replace(/^##\s+/, "")}
           </h2>
         );
       }
 
-      if (line.startsWith("### ")) {
+      if (block.startsWith("### ")) {
         return (
           <h3
             key={index}
-            className="mt-8 mb-3 text-xl font-semibold text-cyan-100"
+            className="mt-8 mb-4 text-xl font-semibold leading-snug text-cyan-100"
           >
-            {line.replace("### ", "")}
+            {block.replace(/^###\s+/, "")}
           </h3>
         );
       }
 
-      if (line.startsWith("- ")) {
+      const lines = block.split("\n").map((line) => line.trim());
+      const isList = lines.every((line) => line.startsWith("- "));
+
+      if (isList) {
         return (
-          <li key={index} className="ml-6 list-disc text-slate-300">
-            {line.replace("- ", "")}
-          </li>
+          <ul key={index} className="my-7 space-y-3 pl-6">
+            {lines.map((line, lineIndex) => (
+              <li
+                key={`${line}-${lineIndex}`}
+                className="list-disc text-lg leading-8 text-slate-300 marker:text-cyan-400"
+              >
+                {line.replace(/^-\s+/, "")}
+              </li>
+            ))}
+          </ul>
         );
       }
 
-      if (line.trim() === "") {
-        return <div key={index} className="h-3" />;
-      }
-
       return (
-        <p key={index} className="mb-5 text-lg leading-8 text-slate-300">
-          {line}
+        <p
+          key={index}
+          className="mb-7 whitespace-pre-line text-lg leading-9 text-slate-300"
+        >
+          {block}
         </p>
       );
     });
@@ -293,74 +242,113 @@ const BlogDetailsPage = () => {
     );
   }
 
+  const articleSchema = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: normalizedBlog.title,
+    description: normalizedBlog.seoDescription || normalizedBlog.excerpt,
+    image: normalizedBlog.coverImage,
+    author: {
+      "@type": "Person",
+      name: normalizedBlog.authorName,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "CodeCraft.BD",
+    },
+    datePublished: normalizedBlog.publishedAt,
+    dateModified: normalizedBlog.updatedAt || normalizedBlog.publishedAt,
+    mainEntityOfPage: articleUrl,
+  };
+
   return (
     <div className="min-h-screen bg-slate-950">
-      <section className="relative overflow-hidden bg-slate-900 pt-32 pb-16">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(6,182,212,0.18),transparent_34%),linear-gradient(135deg,rgba(15,23,42,0.2),rgba(2,6,23,0.95))]" />
-        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-cyan-500/40 to-transparent" />
+      <SEO
+        title={normalizedBlog.seoTitle || normalizedBlog.title}
+        description={normalizedBlog.seoDescription || normalizedBlog.excerpt}
+        keywords={normalizedBlog.tags.join(", ")}
+        image={normalizedBlog.coverImage}
+        path={`/blogs/${normalizedBlog.slug}`}
+        type="article"
+        structuredData={articleSchema}
+      />
+
+      <section className="relative overflow-hidden bg-slate-950 pt-28 pb-14 md:pt-32 md:pb-16">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_12%_8%,rgba(6,182,212,0.22),transparent_30%),radial-gradient(circle_at_86%_16%,rgba(59,130,246,0.14),transparent_28%),linear-gradient(135deg,rgba(15,23,42,0.88),rgba(2,6,23,0.98))]" />
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-400/40 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-slate-700/80 to-transparent" />
 
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <Link
             to="/blogs"
-            className="mb-8 inline-flex items-center gap-2 text-sm font-medium text-slate-400 transition-colors hover:text-cyan-400"
+            className="mb-8 inline-flex items-center gap-2 rounded-full border border-slate-800 bg-slate-900/70 px-4 py-2 text-sm font-medium text-slate-300 transition-colors hover:border-cyan-500/40 hover:text-cyan-300"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Blogs
           </Link>
 
-          <div className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+          <div className="grid gap-10 lg:grid-cols-[0.94fr_1.06fr] lg:items-center xl:gap-14">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.45 }}
             >
-              <div className="mb-6 flex flex-wrap items-center gap-3">
-                <span className="rounded-full border border-cyan-500/30 bg-cyan-500/15 px-3 py-1 text-sm font-medium text-cyan-300">
+              <div className="mb-5 flex flex-wrap items-center gap-2.5">
+                <span className="rounded-full border border-cyan-500/30 bg-cyan-500/15 px-3 py-1 text-xs font-semibold text-cyan-200">
                   {normalizedBlog.category}
                 </span>
-                <span className="rounded-full border border-slate-700 bg-slate-900/70 px-3 py-1 text-sm text-slate-300">
+                <span className="rounded-full border border-slate-700/80 bg-slate-900/70 px-3 py-1 text-xs text-slate-300">
                   {readingTime} min read
                 </span>
               </div>
 
-              <h1 className="max-w-4xl text-4xl font-bold leading-tight text-slate-100 md:text-6xl">
+              <h1 className="max-w-3xl text-3xl font-bold leading-[1.15] text-slate-50 sm:text-4xl lg:text-5xl">
                 {normalizedBlog.title}
               </h1>
 
-              <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300">
+              <p className="mt-5 max-w-2xl text-base leading-8 text-slate-300 md:text-lg">
                 {normalizedBlog.excerpt}
               </p>
 
-              <div className="mt-8 flex flex-wrap items-center gap-5 text-sm text-slate-400">
-                <div>
-                  <p className="font-medium text-slate-100">
+              <div className="mt-7 flex flex-wrap items-center gap-3 text-sm text-slate-400">
+                <div className="rounded-2xl border border-slate-800 bg-slate-900/65 px-4 py-3">
+                  <p className="text-sm font-semibold text-slate-100">
                     {normalizedBlog.authorName}
                   </p>
                   <p className="text-slate-500">Author</p>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex min-h-12 items-center gap-2 rounded-2xl border border-slate-800 bg-slate-900/65 px-4 py-3">
                   <Calendar className="h-4 w-4 text-cyan-400" />
                   <span>{formatDate(normalizedBlog.publishedAt)}</span>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex min-h-12 items-center gap-2 rounded-2xl border border-slate-800 bg-slate-900/65 px-4 py-3">
                   <Eye className="h-4 w-4 text-cyan-400" />
                   <span>{normalizedBlog.views} views</span>
                 </div>
               </div>
+
+              <ShareActions
+                title={normalizedBlog.title}
+                text={normalizedBlog.seoDescription || normalizedBlog.excerpt}
+                url={articleUrl}
+                className="mt-6"
+                compact
+              />
             </motion.div>
 
             <motion.div
               initial={{ opacity: 0, scale: 0.97 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.45, delay: 0.1 }}
-              className="overflow-hidden rounded-3xl border border-slate-700/60 bg-slate-800/40 shadow-2xl shadow-cyan-950/30"
+              className="relative overflow-hidden rounded-3xl border border-slate-700/60 bg-slate-900/70 p-2 shadow-2xl shadow-cyan-950/30"
             >
+              <div className="absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300/70 to-transparent" />
               <img
                 src={normalizedBlog.coverImage}
                 alt={normalizedBlog.title}
-                className="h-72 w-full object-cover md:h-[28rem]"
+                className="h-72 w-full rounded-2xl object-cover md:h-[26rem] lg:h-[29rem]"
                 onError={(e) => {
                   e.currentTarget.src = fallbackImage;
                 }}
@@ -371,41 +359,8 @@ const BlogDetailsPage = () => {
       </section>
 
       <section className="py-16 md:py-20">
-        <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[5rem_minmax(0,48rem)_1fr] lg:px-8">
-          <aside className="hidden lg:block">
-            <div className="sticky top-28 space-y-3">
-              <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-700 bg-slate-900 text-cyan-300">
-                <Share2 className="h-5 w-5" />
-              </div>
-
-              {shareItems.map((item) => (
-                <button
-                  key={item.name}
-                  type="button"
-                  onClick={item.action}
-                  className="flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-700 bg-slate-900 text-slate-400 transition-colors hover:border-cyan-500/40 hover:text-cyan-300"
-                  title={`Share on ${item.name}`}
-                >
-                  <item.icon className="h-5 w-5" />
-                </button>
-              ))}
-
-              <button
-                type="button"
-                onClick={handleCopyLink}
-                className="flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-700 bg-slate-900 text-slate-400 transition-colors hover:border-cyan-500/40 hover:text-cyan-300"
-                title="Copy article link"
-              >
-                {copied ? (
-                  <Check className="h-5 w-5" />
-                ) : (
-                  <Copy className="h-5 w-5" />
-                )}
-              </button>
-            </div>
-          </aside>
-
-          <article className="min-w-0">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <article className="w-full">
             <div className="rounded-3xl border border-slate-800 bg-slate-900/45 p-6 shadow-xl shadow-slate-950/30 md:p-10">
               <div className="border-b border-slate-800 pb-8">
                 <p className="text-sm font-medium uppercase tracking-wider text-cyan-300">
@@ -441,30 +396,6 @@ const BlogDetailsPage = () => {
               )}
             </div>
           </article>
-
-          <aside className="hidden xl:block">
-            <div className="sticky top-28 rounded-3xl border border-slate-800 bg-slate-900/60 p-6">
-              <p className="text-sm font-semibold uppercase tracking-wider text-cyan-300">
-                Share this insight
-              </p>
-              <p className="mt-3 text-sm leading-6 text-slate-400">
-                Send this article to your team or save it for your next product
-                planning session.
-              </p>
-              <button
-                type="button"
-                onClick={handleCopyLink}
-                className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-cyan-500 px-4 py-3 text-sm font-semibold text-slate-950 transition-colors hover:bg-cyan-400"
-              >
-                {copied ? (
-                  <Check className="h-4 w-4" />
-                ) : (
-                  <Copy className="h-4 w-4" />
-                )}
-                {copied ? "Link copied" : "Copy article link"}
-              </button>
-            </div>
-          </aside>
         </div>
       </section>
 

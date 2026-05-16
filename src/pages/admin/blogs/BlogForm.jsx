@@ -269,10 +269,14 @@ const BlogFormPage = () => {
             name="content"
             value={formData.content}
             onChange={handleChange}
-            placeholder="Blog content..."
-            rows={12}
+            placeholder={`Write your blog content here.\n\nUse a blank line between paragraphs.\n\nUse ## Heading or ### Subheading for sections.\nUse - item for bullet points.`}
+            rows={16}
             required
           />
+          <p className="text-sm text-slate-500">
+            Multiple paragraphs are supported. Add a blank line between
+            paragraphs for professional spacing on the public blog page.
+          </p>
 
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-2">
