@@ -4,15 +4,16 @@
 
 @layer base {
   :root {
-    --color-primary: #0f172a;
-    --color-secondary: #1e293b;
-    --color-accent: #06b6d4;
-    --color-accent-hover: #0891b2;
-    --color-text: #f8fafc;
-    --color-text-muted: #94a3b8;
-    --color-border: #334155;
-    --color-card: #1e293b;
-    --color-card-hover: #334155;
+    --color-canvas: #f4f6f8;
+    --color-surface: #ffffff;
+    --color-ink: #0a1628;
+    --color-ink-muted: #4a5a6e;
+    --color-ink-subtle: #6b7c90;
+    --color-accent: #0d9488;
+    --color-accent-hover: #0f766e;
+    --color-accent-soft: #f0fdfa;
+    --color-border: #e4e9ef;
+    --color-border-strong: #c8d1dc;
   }
 
   html {
@@ -20,57 +21,86 @@
   }
 
   body {
-    @apply bg-slate-900 text-slate-100 font-sans antialiased;
+    @apply bg-canvas text-ink font-sans antialiased;
+    background-image:
+      radial-gradient(ellipse 70% 45% at 15% -10%, rgba(13, 148, 136, 0.09), transparent 55%),
+      radial-gradient(ellipse 50% 40% at 90% 0%, rgba(10, 22, 40, 0.04), transparent 50%),
+      linear-gradient(rgba(10, 22, 40, 0.018) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(10, 22, 40, 0.018) 1px, transparent 1px);
+    background-size: auto, auto, 56px 56px, 56px 56px;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  .font-display {
+    font-family: "Space Grotesk", "Anek Bangla", ui-sans-serif, system-ui, sans-serif;
+    letter-spacing: -0.025em;
   }
 
   * {
-    @apply border-slate-700;
+    @apply border-border;
+  }
+
+  ::selection {
+    @apply bg-accent/20 text-ink;
   }
 }
 
 @layer components {
   .btn {
-    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all duration-200 ease-smooth disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-accent/40 focus:ring-offset-2 focus:ring-offset-canvas;
   }
 
   .btn-primary {
-    @apply bg-cyan-500 text-slate-900 hover:bg-cyan-400;
+    @apply bg-accent text-white hover:bg-accent-hover hover:shadow-soft;
   }
 
   .btn-secondary {
-    @apply bg-slate-700 text-slate-100 hover:bg-slate-600;
+    @apply bg-ink text-white hover:bg-ink/90;
   }
 
   .btn-outline {
-    @apply border border-slate-600 text-slate-100 hover:bg-slate-800;
+    @apply border border-border-strong bg-surface text-ink hover:bg-canvas hover:border-ink/20;
   }
 
   .btn-ghost {
-    @apply text-slate-300 hover:text-slate-100 hover:bg-slate-800;
+    @apply text-ink-muted hover:text-ink hover:bg-ink/5;
   }
 
   .input {
-    @apply w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all;
+    @apply w-full px-4 py-2.5 bg-surface border border-border rounded-lg text-ink placeholder:text-ink-subtle focus:outline-none focus:ring-2 focus:ring-accent/25 focus:border-accent transition-colors;
   }
 
   .card {
-    @apply bg-slate-800/50 border border-slate-700/50 rounded-lg backdrop-blur-sm;
-  }
-
-  .glass {
-    @apply bg-slate-900/60 backdrop-blur-xl border border-slate-700/30;
-  }
-
-  .gradient-text {
-    @apply bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent;
+    @apply bg-surface border border-border rounded-xl;
   }
 
   .section-padding {
-    @apply py-16 md:py-20 lg:py-24;
+    @apply py-20 md:py-24 lg:py-28;
   }
 
   .container-custom {
     @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .page-hero {
+    @apply relative pt-10 pb-14 md:pt-14 md:pb-16 overflow-hidden;
+  }
+
+  .link-underline {
+    @apply relative inline-flex items-center gap-1.5 font-medium transition-colors;
+  }
+
+  .link-underline::after {
+    content: "";
+    @apply absolute left-0 -bottom-0.5 h-px w-0 bg-current transition-all duration-300 ease-smooth;
+  }
+
+  .group:hover .link-underline::after,
+  .link-underline:hover::after {
+    @apply w-full;
   }
 }
 
@@ -80,7 +110,7 @@
   }
 
   .animate-slide-up {
-    animation: slideUp 0.5s ease-out forwards;
+    animation: slideUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   }
 
   .animate-slide-down {
@@ -88,7 +118,19 @@
   }
 
   .animate-scale-in {
-    animation: scaleIn 0.3s ease-out forwards;
+    animation: scaleIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  .animate-tech-marquee {
+    animation: tech-marquee 28s linear infinite;
+  }
+
+  .animate-tech-marquee:hover {
+    animation-play-state: paused;
+  }
+
+  .text-balance {
+    text-wrap: balance;
   }
 }
 
@@ -115,7 +157,7 @@
 @keyframes slideDown {
   from {
     opacity: 0;
-    transform: translateY(-20px);
+    transform: translateY(-16px);
   }
   to {
     opacity: 1;
@@ -126,7 +168,7 @@
 @keyframes scaleIn {
   from {
     opacity: 0;
-    transform: scale(0.95);
+    transform: scale(0.98);
   }
   to {
     opacity: 1;
@@ -134,20 +176,29 @@
   }
 }
 
-/* Custom scrollbar */
+@keyframes tech-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-slate-900;
+  background: #eef1f4;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-slate-700 rounded-full;
+  background: #c8d1dc;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-slate-600;
+  background: #94a3b8;
 }

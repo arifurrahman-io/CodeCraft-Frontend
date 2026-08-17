@@ -52,14 +52,14 @@ const WebsiteSettingsPage = () => {
   return (
     <div className="mx-auto w-full max-w-4xl space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-100">Website Settings</h1>
-        <p className="text-slate-400">Manage your website configuration</p>
+        <h1 className="text-2xl font-bold text-ink">Website Settings</h1>
+        <p className="text-ink-muted">Manage your website configuration</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Company Info */}
-        <div className="glass rounded-xl p-6 border border-slate-700/50 space-y-6">
-          <h2 className="text-lg font-semibold text-slate-100">
+        <div className="bg-surface rounded-xl p-6 border border-border space-y-6">
+          <h2 className="text-lg font-semibold text-ink">
             Company Information
           </h2>
           <div className="grid md:grid-cols-2 gap-6">
@@ -113,8 +113,8 @@ const WebsiteSettingsPage = () => {
         </div>
 
         {/* Social Links */}
-        <div className="glass rounded-xl p-6 border border-slate-700/50 space-y-6">
-          <h2 className="text-lg font-semibold text-slate-100">Social Links</h2>
+        <div className="bg-surface rounded-xl p-6 border border-border space-y-6">
+          <h2 className="text-lg font-semibold text-ink">Social Links</h2>
           <div className="grid md:grid-cols-2 gap-6">
             <Input
               label="Facebook"
@@ -146,12 +146,12 @@ const WebsiteSettingsPage = () => {
         </div>
 
         {/* Website Statistics */}
-        <div className="glass rounded-xl p-6 border border-slate-700/50 space-y-6">
+        <div className="bg-surface rounded-xl p-6 border border-border space-y-6">
           <div>
-            <h2 className="text-lg font-semibold text-slate-100">
+            <h2 className="text-lg font-semibold text-ink">
               Website Statistics
             </h2>
-            <p className="mt-1 text-sm text-slate-400">
+            <p className="mt-1 text-sm text-ink-muted">
               Years experience is calculated from the business start year. Leave
               collection-based fields empty to calculate them from live
               projects, team, and testimonials.
@@ -225,8 +225,8 @@ const WebsiteSettingsPage = () => {
         </div>
 
         {/* SEO Settings */}
-        <div className="glass rounded-xl p-6 border border-slate-700/50 space-y-6">
-          <h2 className="text-lg font-semibold text-slate-100">SEO Settings</h2>
+        <div className="bg-surface rounded-xl p-6 border border-border space-y-6">
+          <h2 className="text-lg font-semibold text-ink">SEO Settings</h2>
           <Input
             label="Meta Title"
             value={formData.seo.title}
@@ -246,8 +246,8 @@ const WebsiteSettingsPage = () => {
         </div>
 
         {/* Branding */}
-        <div className="glass rounded-xl p-6 border border-slate-700/50 space-y-6">
-          <h2 className="text-lg font-semibold text-slate-100">Branding</h2>
+        <div className="bg-surface rounded-xl p-6 border border-border space-y-6">
+          <h2 className="text-lg font-semibold text-ink">Branding</h2>
           <div className="grid md:grid-cols-2 gap-6">
             <div className="space-y-3">
               <ImageUploader
@@ -286,7 +286,7 @@ const WebsiteSettingsPage = () => {
           </div>
           <div className="grid md:grid-cols-3 gap-6">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
+              <label className="block text-sm font-medium text-ink mb-2">
                 Primary Color
               </label>
               <div className="flex gap-3">
@@ -296,7 +296,7 @@ const WebsiteSettingsPage = () => {
                   onChange={(e) =>
                     handleChange("branding", "primaryColor", e.target.value)
                   }
-                  className="w-12 h-12 rounded-lg border border-slate-700 cursor-pointer"
+                  className="w-12 h-12 rounded-lg border border-border cursor-pointer"
                 />
                 <Input
                   value={formData.branding.primaryColor}
@@ -308,7 +308,7 @@ const WebsiteSettingsPage = () => {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
+              <label className="block text-sm font-medium text-ink mb-2">
                 Secondary Color
               </label>
               <div className="flex gap-3">
@@ -318,7 +318,7 @@ const WebsiteSettingsPage = () => {
                   onChange={(e) =>
                     handleChange("branding", "secondaryColor", e.target.value)
                   }
-                  className="w-12 h-12 rounded-lg border border-slate-700 cursor-pointer"
+                  className="w-12 h-12 rounded-lg border border-border cursor-pointer"
                 />
                 <Input
                   value={formData.branding.secondaryColor}
@@ -330,7 +330,7 @@ const WebsiteSettingsPage = () => {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
+              <label className="block text-sm font-medium text-ink mb-2">
                 Accent Color
               </label>
               <div className="flex gap-3">
@@ -340,7 +340,7 @@ const WebsiteSettingsPage = () => {
                   onChange={(e) =>
                     handleChange("branding", "accentColor", e.target.value)
                   }
-                  className="w-12 h-12 rounded-lg border border-slate-700 cursor-pointer"
+                  className="w-12 h-12 rounded-lg border border-border cursor-pointer"
                 />
                 <Input
                   value={formData.branding.accentColor}

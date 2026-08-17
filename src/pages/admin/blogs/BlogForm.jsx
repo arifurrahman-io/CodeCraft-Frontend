@@ -5,6 +5,7 @@ import { toast } from "sonner";
 
 import Button from "@/components/common/Button";
 import Input from "@/components/common/Input";
+import Loader from "@/components/common/Loader";
 import TextArea from "@/components/common/TextArea";
 import ImageUploader from "@/components/admin/ImageUploader";
 import { createBlog, getBlogById, updateBlog } from "@/services/blogService";
@@ -202,8 +203,8 @@ const BlogFormPage = () => {
   if (isLoading) {
     return (
       <div className="mx-auto w-full max-w-4xl">
-        <div className="glass rounded-xl p-6 border border-slate-700/50">
-          <p className="text-slate-300">Loading blog...</p>
+        <div className="bg-surface rounded-xl p-12 border border-border">
+          <Loader text="Loading blog..." />
         </div>
       </div>
     );
@@ -215,24 +216,24 @@ const BlogFormPage = () => {
         <button
           type="button"
           onClick={() => navigate("/admin/blogs")}
-          className="p-2 rounded-lg text-slate-400 hover:text-slate-100 hover:bg-slate-800"
+          className="p-2 rounded-lg text-ink-muted hover:text-ink hover:bg-ink/5"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
 
         <div>
-          <h1 className="text-2xl font-bold text-slate-100">
+          <h1 className="text-2xl font-bold text-ink">
             {isEditing ? "Edit Blog" : "Create Blog"}
           </h1>
-          <p className="text-slate-400">
+          <p className="text-ink-muted">
             {isEditing ? "Update blog content" : "Write a new blog post"}
           </p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="glass rounded-xl p-6 border border-slate-700/50 space-y-6">
-          <h2 className="text-lg font-semibold text-slate-100">
+        <div className="bg-surface rounded-xl p-6 border border-border space-y-6">
+          <h2 className="text-lg font-semibold text-ink">
             Basic Information
           </h2>
 
@@ -273,20 +274,20 @@ const BlogFormPage = () => {
             rows={16}
             required
           />
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-ink-muted">
             Multiple paragraphs are supported. Add a blank line between
             paragraphs for professional spacing on the public blog page.
           </p>
 
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">
+            <label className="block text-sm font-medium text-ink mb-2">
               Category
             </label>
             <select
               name="category"
               value={formData.category}
               onChange={handleChange}
-              className="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 rounded-lg text-slate-100"
+              className="w-full px-4 py-2.5 bg-surface border border-border rounded-lg text-ink focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent"
             >
               {categoryOptions.map((category) => (
                 <option key={category} value={category}>
@@ -297,8 +298,8 @@ const BlogFormPage = () => {
           </div>
         </div>
 
-        <div className="glass rounded-xl p-6 border border-slate-700/50 space-y-6">
-          <h2 className="text-lg font-semibold text-slate-100">Tags</h2>
+        <div className="bg-surface rounded-xl p-6 border border-border space-y-6">
+          <h2 className="text-lg font-semibold text-ink">Tags</h2>
 
           <div className="flex gap-3">
             <Input
@@ -322,13 +323,13 @@ const BlogFormPage = () => {
             {ensureArray(formData.tags).map((tag, index) => (
               <span
                 key={`${tag}-${index}`}
-                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300"
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-canvas text-ink"
               >
                 #{tag}
                 <button
                   type="button"
                   onClick={() => handleRemoveTag(index)}
-                  className="text-slate-500 hover:text-red-500"
+                  className="text-ink-muted hover:text-red-500"
                 >
                   ×
                 </button>
@@ -337,8 +338,8 @@ const BlogFormPage = () => {
           </div>
         </div>
 
-        <div className="glass rounded-xl p-6 border border-slate-700/50 space-y-6">
-          <h2 className="text-lg font-semibold text-slate-100">Cover Image</h2>
+        <div className="bg-surface rounded-xl p-6 border border-border space-y-6">
+          <h2 className="text-lg font-semibold text-ink">Cover Image</h2>
 
           <ImageUploader
             label="Cover Image"
@@ -352,8 +353,8 @@ const BlogFormPage = () => {
           />
         </div>
 
-        <div className="glass rounded-xl p-6 border border-slate-700/50 space-y-6">
-          <h2 className="text-lg font-semibold text-slate-100">SEO</h2>
+        <div className="bg-surface rounded-xl p-6 border border-border space-y-6">
+          <h2 className="text-lg font-semibold text-ink">SEO</h2>
 
           <Input
             label="SEO Title"
@@ -373,8 +374,8 @@ const BlogFormPage = () => {
           />
         </div>
 
-        <div className="glass rounded-xl p-6 border border-slate-700/50 space-y-6">
-          <h2 className="text-lg font-semibold text-slate-100">Settings</h2>
+        <div className="bg-surface rounded-xl p-6 border border-border space-y-6">
+          <h2 className="text-lg font-semibold text-ink">Settings</h2>
 
           <label className="flex items-center gap-3">
             <input
@@ -382,9 +383,9 @@ const BlogFormPage = () => {
               name="isPublished"
               checked={formData.isPublished}
               onChange={handleChange}
-              className="w-4 h-4 rounded border-slate-700 bg-slate-800 text-cyan-500"
+              className="w-4 h-4 rounded border-border bg-canvas text-accent"
             />
-            <span className="text-slate-300">Published</span>
+            <span className="text-ink">Published</span>
           </label>
 
           {formData.isPublished && (

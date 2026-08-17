@@ -91,16 +91,19 @@ const ShareActions = ({
     },
   ];
 
+  const btnBase =
+    "inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors sm:px-4";
+
   return (
     <div className={className}>
       {!compact && (
-        <p className="mb-3 text-sm font-medium text-slate-400">{label}</p>
+        <p className="mb-3 text-sm font-medium text-ink-muted">{label}</p>
       )}
       <div className="flex flex-wrap gap-2 sm:gap-3">
         <button
           type="button"
           onClick={handleNativeShare}
-          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-cyan-500/30 bg-cyan-500/10 px-3 py-2 text-sm font-medium text-cyan-200 transition-colors hover:border-cyan-400 hover:bg-cyan-500/15 sm:px-4"
+          className={`${btnBase} border-accent/30 bg-accent-soft font-medium text-accent hover:border-accent hover:bg-accent/15`}
           aria-label={label}
           title={label}
         >
@@ -116,7 +119,7 @@ const ShareActions = ({
               key={item.name}
               type="button"
               onClick={item.action}
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-slate-700 bg-slate-800/70 px-3 py-2 text-sm text-slate-300 transition-colors hover:border-cyan-500/60 hover:text-cyan-300 sm:px-4"
+              className={`${btnBase} border-border bg-surface text-ink-muted hover:border-accent/40 hover:text-accent`}
               aria-label={`Share on ${item.name}`}
               title={`Share on ${item.name}`}
             >
@@ -129,7 +132,7 @@ const ShareActions = ({
         <button
           type="button"
           onClick={handleCopyLink}
-          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-slate-700 bg-slate-800/70 px-3 py-2 text-sm text-slate-300 transition-colors hover:border-cyan-500/60 hover:text-cyan-300 sm:px-4"
+          className={`${btnBase} border-border bg-surface text-ink-muted hover:border-accent/40 hover:text-accent`}
           aria-label="Copy link"
           title="Copy link"
         >

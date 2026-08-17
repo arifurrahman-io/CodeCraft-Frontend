@@ -5,6 +5,7 @@ import { toast } from "sonner";
 
 import Button from "@/components/common/Button";
 import Input from "@/components/common/Input";
+import Loader from "@/components/common/Loader";
 import TextArea from "@/components/common/TextArea";
 import ImageUploader from "@/components/admin/ImageUploader";
 import {
@@ -145,8 +146,8 @@ const TestimonialFormPage = () => {
   if (isLoading) {
     return (
       <div className="mx-auto w-full max-w-4xl">
-        <div className="glass rounded-xl p-6 border border-slate-700/50">
-          <p className="text-slate-300">Loading testimonial...</p>
+        <div className="bg-surface rounded-xl p-12 border border-border">
+          <Loader text="Loading testimonial..." />
         </div>
       </div>
     );
@@ -158,16 +159,16 @@ const TestimonialFormPage = () => {
         <button
           type="button"
           onClick={() => navigate("/admin/testimonials")}
-          className="p-2 rounded-lg text-slate-400 hover:text-slate-100 hover:bg-slate-800"
+          className="p-2 rounded-lg text-ink-muted hover:text-ink hover:bg-ink/5"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
 
         <div>
-          <h1 className="text-2xl font-bold text-slate-100">
+          <h1 className="text-2xl font-bold text-ink">
             {isEditing ? "Edit Testimonial" : "Add Testimonial"}
           </h1>
-          <p className="text-slate-400">
+          <p className="text-ink-muted">
             {isEditing
               ? "Update client testimonial"
               : "Add a client testimonial"}
@@ -176,8 +177,8 @@ const TestimonialFormPage = () => {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="glass rounded-xl p-6 border border-slate-700/50 space-y-6">
-          <h2 className="text-lg font-semibold text-slate-100">
+        <div className="bg-surface rounded-xl p-6 border border-border space-y-6">
+          <h2 className="text-lg font-semibold text-ink">
             Client Information
           </h2>
 
@@ -219,8 +220,8 @@ const TestimonialFormPage = () => {
           />
         </div>
 
-        <div className="glass rounded-xl p-6 border border-slate-700/50 space-y-6">
-          <h2 className="text-lg font-semibold text-slate-100">Photo</h2>
+        <div className="bg-surface rounded-xl p-6 border border-border space-y-6">
+          <h2 className="text-lg font-semibold text-ink">Photo</h2>
 
           <ImageUploader
             label="Client Photo"
@@ -234,11 +235,11 @@ const TestimonialFormPage = () => {
           />
         </div>
 
-        <div className="glass rounded-xl p-6 border border-slate-700/50 space-y-6">
-          <h2 className="text-lg font-semibold text-slate-100">Settings</h2>
+        <div className="bg-surface rounded-xl p-6 border border-border space-y-6">
+          <h2 className="text-lg font-semibold text-ink">Settings</h2>
 
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">
+            <label className="block text-sm font-medium text-ink mb-2">
               Rating
             </label>
 
@@ -256,7 +257,7 @@ const TestimonialFormPage = () => {
                   className={`p-1 ${
                     star <= Number(formData.rating)
                       ? "text-yellow-500"
-                      : "text-slate-600"
+                      : "text-ink-subtle"
                   }`}
                 >
                   <Star className="w-6 h-6 fill-current" />
@@ -280,9 +281,9 @@ const TestimonialFormPage = () => {
               name="isActive"
               checked={formData.isActive}
               onChange={handleChange}
-              className="w-4 h-4 rounded border-slate-700 bg-slate-800 text-cyan-500"
+              className="w-4 h-4 rounded border-border bg-canvas text-accent"
             />
-            <span className="text-slate-300">Active</span>
+            <span className="text-ink">Active</span>
           </label>
         </div>
 

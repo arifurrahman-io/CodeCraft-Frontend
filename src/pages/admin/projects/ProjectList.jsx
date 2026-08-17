@@ -5,6 +5,7 @@ import { toast } from "sonner";
 
 import Button from "@/components/common/Button";
 import Input from "@/components/common/Input";
+import Loader from "@/components/common/Loader";
 import DataTable from "@/components/admin/DataTable";
 import StatusBadge from "@/components/admin/StatusBadge";
 import { deleteProject, getAllProjects } from "@/services/projectService";
@@ -77,18 +78,13 @@ const ProjectListPage = () => {
   }, [fetchProjects]);
 
   const handleDelete = async (id) => {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this project?",
-    );
-
-    if (!confirmed) return;
-
     try {
       await deleteProject(id);
       setProjects((prev) => prev.filter((project) => project._id !== id));
       toast.success("Project deleted successfully");
     } catch (error) {
       toast.error(error?.response?.data?.message || "Failed to delete project");
+      throw error;
     }
   };
 
@@ -125,15 +121,15 @@ const ProjectListPage = () => {
           <img
             src={row.coverImage}
             alt={row.title}
-            className="w-16 h-12 rounded-lg object-cover border border-slate-700"
+            className="w-16 h-12 rounded-lg object-cover border border-border"
             onError={(e) => {
               e.currentTarget.src = fallbackImage;
             }}
           />
 
           <div>
-            <h3 className="font-medium text-slate-100">{row.title}</h3>
-            <p className="text-sm text-slate-500">
+            <h3 className="font-medium text-ink">{row.title}</h3>
+            <p className="text-sm text-ink-muted">
               {row.clientName || "No client name"}
             </p>
           </div>
@@ -143,13 +139,13 @@ const ProjectListPage = () => {
     {
       header: "Category",
       accessor: "category",
-      render: (row) => <span className="text-slate-300">{row.category}</span>,
+      render: (row) => <span className="text-ink">{row.category}</span>,
     },
     {
       header: "Completed",
       accessor: "completedAt",
       render: (row) => (
-        <span className="text-slate-300">{formatDate(row.completedAt)}</span>
+        <span className="text-ink">{formatDate(row.completedAt)}</span>
       ),
     },
     {
@@ -166,8 +162,8 @@ const ProjectListPage = () => {
         <span
           className={`px-2 py-1 rounded-full text-xs ${
             row.isFeatured
-              ? "bg-cyan-500/20 text-cyan-500"
-              : "bg-slate-700 text-slate-400"
+              ? "bg-accent-soft text-accent"
+              : "bg-canvas text-ink-muted"
           }`}
         >
           {row.isFeatured ? "Yes" : "No"}
@@ -180,8 +176,8 @@ const ProjectListPage = () => {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-100">Projects</h1>
-          <p className="text-slate-400">Manage your project portfolio</p>
+          <h1 className="text-2xl font-bold text-ink">Projects</h1>
+          <p className="text-ink-muted">Manage your project portfolio</p>
         </div>
 
         <Link to="/admin/projects/create">
@@ -202,7 +198,7 @@ const ProjectListPage = () => {
         <select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
-          className="px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+          className="px-4 py-2.5 bg-surface border border-border rounded-lg text-ink focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent"
         >
           <option value="all">All Status</option>
           <option value="active">Active</option>
@@ -211,8 +207,8 @@ const ProjectListPage = () => {
       </div>
 
       {isLoading ? (
-        <div className="glass rounded-xl p-6 border border-slate-700/50">
-          <p className="text-slate-300">Loading projects...</p>
+        <div className="bg-surface rounded-xl p-12 border border-border">
+          <Loader text="Loading projects..." />
         </div>
       ) : (
         <DataTable
@@ -221,6 +217,8 @@ const ProjectListPage = () => {
           basePath="/admin/projects"
           viewPath={(row) => `/projects/${row.slug}`}
           onDelete={handleDelete}
+          deleteTitle="Delete project"
+          deleteMessage="Are you sure you want to delete this project? This action cannot be undone."
           emptyMessage="No projects found"
         />
       )}

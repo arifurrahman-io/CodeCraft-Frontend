@@ -1,58 +1,129 @@
 const statusColors = {
   active: {
-    bg: "bg-green-500/20",
-    text: "text-green-500",
-    border: "border-green-500/30",
+    bg: "bg-emerald-50",
+    text: "text-emerald-700",
+    border: "border-emerald-200",
+    dot: "bg-emerald-500",
   },
   inactive: {
-    bg: "bg-red-500/20",
-    text: "text-red-500",
-    border: "border-red-500/30",
+    bg: "bg-red-50",
+    text: "text-red-700",
+    border: "border-red-200",
+    dot: "bg-red-500",
   },
   pending: {
-    bg: "bg-yellow-500/20",
-    text: "text-yellow-500",
-    border: "border-yellow-500/30",
+    bg: "bg-amber-50",
+    text: "text-amber-700",
+    border: "border-amber-200",
+    dot: "bg-amber-500",
   },
   draft: {
-    bg: "bg-slate-500/20",
-    text: "text-slate-500",
-    border: "border-slate-500/30",
+    bg: "bg-canvas",
+    text: "text-ink-muted",
+    border: "border-border",
+    dot: "bg-ink-subtle",
   },
   published: {
-    bg: "bg-green-500/20",
-    text: "text-green-500",
-    border: "border-green-500/30",
+    bg: "bg-emerald-50",
+    text: "text-emerald-700",
+    border: "border-emerald-200",
+    dot: "bg-emerald-500",
   },
   archived: {
-    bg: "bg-slate-500/20",
-    text: "text-slate-500",
-    border: "border-slate-500/30",
+    bg: "bg-canvas",
+    text: "text-ink-muted",
+    border: "border-border",
+    dot: "bg-ink-subtle",
   },
   read: {
-    bg: "bg-blue-500/20",
-    text: "text-blue-500",
-    border: "border-blue-500/30",
+    bg: "bg-sky-50",
+    text: "text-sky-700",
+    border: "border-sky-200",
+    dot: "bg-sky-500",
   },
   unread: {
-    bg: "bg-cyan-500/20",
-    text: "text-cyan-500",
-    border: "border-cyan-500/30",
+    bg: "bg-accent-soft",
+    text: "text-accent",
+    border: "border-accent/30",
+    dot: "bg-accent",
+  },
+  replied: {
+    bg: "bg-emerald-50",
+    text: "text-emerald-700",
+    border: "border-emerald-200",
+    dot: "bg-emerald-500",
   },
   completed: {
-    bg: "bg-green-500/20",
-    text: "text-green-500",
-    border: "border-green-500/30",
+    bg: "bg-emerald-50",
+    text: "text-emerald-700",
+    border: "border-emerald-200",
+    dot: "bg-emerald-500",
   },
   in_progress: {
-    bg: "bg-yellow-500/20",
-    text: "text-yellow-500",
-    border: "border-yellow-500/30",
+    bg: "bg-amber-50",
+    text: "text-amber-700",
+    border: "border-amber-200",
+    dot: "bg-amber-500",
+  },
+  paid: {
+    bg: "bg-emerald-50",
+    text: "text-emerald-700",
+    border: "border-emerald-200",
+    dot: "bg-emerald-500",
+  },
+  sent: {
+    bg: "bg-sky-50",
+    text: "text-sky-700",
+    border: "border-sky-200",
+    dot: "bg-sky-500",
+  },
+  overdue: {
+    bg: "bg-red-50",
+    text: "text-red-700",
+    border: "border-red-200",
+    dot: "bg-red-500",
+  },
+  new: {
+    bg: "bg-accent-soft",
+    text: "text-accent",
+    border: "border-accent/30",
+    dot: "bg-accent",
+  },
+  reviewing: {
+    bg: "bg-amber-50",
+    text: "text-amber-700",
+    border: "border-amber-200",
+    dot: "bg-amber-500",
+  },
+  shortlisted: {
+    bg: "bg-emerald-50",
+    text: "text-emerald-700",
+    border: "border-emerald-200",
+    dot: "bg-emerald-500",
+  },
+  rejected: {
+    bg: "bg-red-50",
+    text: "text-red-700",
+    border: "border-red-200",
+    dot: "bg-red-500",
+  },
+  cancelled: {
+    bg: "bg-amber-50",
+    text: "text-amber-700",
+    border: "border-amber-200",
+    dot: "bg-amber-500",
   },
 };
 
+const normalizeStatus = (status) =>
+  String(status || "draft")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "_");
+
 const StatusBadge = ({ status, children, size = "md", dot = false }) => {
-  const colors = statusColors[status] || statusColors.draft;
+  const key = normalizeStatus(status);
+  const colors = statusColors[key] || statusColors.draft;
 
   const sizes = {
     sm: "px-2 py-0.5 text-xs",
@@ -69,9 +140,7 @@ const StatusBadge = ({ status, children, size = "md", dot = false }) => {
       `}
     >
       {dot && (
-        <span
-          className={`w-1.5 h-1.5 rounded-full ${colors.bg.replace("/20", "")}`}
-        />
+        <span className={`w-1.5 h-1.5 rounded-full ${colors.dot}`} />
       )}
       {children || status}
     </span>

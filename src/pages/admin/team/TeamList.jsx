@@ -5,11 +5,13 @@ import { toast } from "sonner";
 
 import Button from "@/components/common/Button";
 import Input from "@/components/common/Input";
+import Loader from "@/components/common/Loader";
 import DataTable from "@/components/admin/DataTable";
+import StatusBadge from "@/components/admin/StatusBadge";
 import { deleteTeamMember, getAllTeam } from "@/services/teamService";
 
 const fallbackPhoto =
-  "https://ui-avatars.com/api/?name=Team+Member&background=0f172a&color=06b6d4";
+  "https://ui-avatars.com/api/?name=Team+Member&background=f0fdfa&color=0d9488";
 
 const getTeamFromResponse = (response) => {
   if (Array.isArray(response)) return response;
@@ -70,12 +72,6 @@ const TeamListPage = () => {
   }, [fetchTeam]);
 
   const handleDelete = async (id) => {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this team member?",
-    );
-
-    if (!confirmed) return;
-
     try {
       await deleteTeamMember(id);
       setTeam((prev) => prev.filter((member) => member._id !== id));
@@ -84,6 +80,7 @@ const TeamListPage = () => {
       toast.error(
         error?.response?.data?.message || "Failed to delete team member",
       );
+      throw error;
     }
   };
 
@@ -115,15 +112,15 @@ const TeamListPage = () => {
           <img
             src={row.photo}
             alt={row.name}
-            className="w-12 h-12 rounded-full object-cover border border-slate-700"
+            className="w-12 h-12 rounded-full object-cover border border-border"
             onError={(e) => {
               e.currentTarget.src = fallbackPhoto;
             }}
           />
 
           <div>
-            <h3 className="font-medium text-slate-100">{row.name}</h3>
-            <p className="text-sm text-slate-500">{row.designation}</p>
+            <h3 className="font-medium text-ink">{row.name}</h3>
+            <p className="text-sm text-ink-muted">{row.designation}</p>
           </div>
         </div>
       ),
@@ -137,13 +134,13 @@ const TeamListPage = () => {
             row.skills.slice(0, 3).map((skill, index) => (
               <span
                 key={`${skill}-${index}`}
-                className="px-2 py-1 rounded-md bg-slate-800 text-xs text-slate-300"
+                className="px-2 py-1 rounded-md bg-canvas text-xs text-ink"
               >
                 {skill}
               </span>
             ))
           ) : (
-            <span className="text-slate-500 text-sm">No skills</span>
+            <span className="text-ink-muted text-sm">No skills</span>
           )}
         </div>
       ),
@@ -151,21 +148,13 @@ const TeamListPage = () => {
     {
       header: "Order",
       accessor: "order",
-      render: (row) => <span className="text-slate-300">{row.order}</span>,
+      render: (row) => <span className="text-ink">{row.order}</span>,
     },
     {
       header: "Status",
       accessor: "isActive",
       render: (row) => (
-        <span
-          className={`px-2 py-1 rounded-full text-xs ${
-            row.isActive
-              ? "bg-green-500/20 text-green-500"
-              : "bg-slate-700 text-slate-400"
-          }`}
-        >
-          {row.isActive ? "Active" : "Inactive"}
-        </span>
+        <StatusBadge status={row.isActive ? "active" : "inactive"} />
       ),
     },
   ];
@@ -174,8 +163,8 @@ const TeamListPage = () => {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-100">Team</h1>
-          <p className="text-slate-400">Manage team members</p>
+          <h1 className="text-2xl font-bold text-ink">Team</h1>
+          <p className="text-ink-muted">Manage team members</p>
         </div>
 
         <Link to="/admin/team/create">
@@ -196,7 +185,7 @@ const TeamListPage = () => {
         <select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
-          className="px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+          className="px-4 py-2.5 bg-surface border border-border rounded-lg text-ink focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent"
         >
           <option value="all">All Status</option>
           <option value="active">Active</option>
@@ -205,8 +194,8 @@ const TeamListPage = () => {
       </div>
 
       {isLoading ? (
-        <div className="glass rounded-xl p-6 border border-slate-700/50">
-          <p className="text-slate-300">Loading team members...</p>
+        <div className="bg-surface rounded-xl p-12 border border-border">
+          <Loader text="Loading team members..." />
         </div>
       ) : (
         <DataTable
@@ -215,6 +204,8 @@ const TeamListPage = () => {
           basePath="/admin/team"
           viewPath={() => "/about"}
           onDelete={handleDelete}
+          deleteTitle="Delete team member"
+          deleteMessage="Are you sure you want to delete this team member? This action cannot be undone."
           emptyMessage="No team members"
         />
       )}

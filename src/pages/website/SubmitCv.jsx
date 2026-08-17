@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { CheckCircle2, Plus, Send, Trash2, UserRound } from "lucide-react";
+import { CheckCircle2, Plus, Send, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import Button from "@/components/common/Button";
 import Input from "@/components/common/Input";
 import TextArea from "@/components/common/TextArea";
+import PageHero from "@/components/website/PageHero";
 import { submitCv } from "@/services/cvSubmissionService";
 
 const blankEducation = {
@@ -67,12 +68,15 @@ const selectOptions = {
   proficiencyLevel: ["Basic", "Conversational", "Fluent", "Native"],
 };
 
+const selectClass =
+  "w-full px-4 py-2.5 bg-surface border border-border rounded-lg text-ink focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-colors";
+
 const FieldGroup = ({ title, description, children }) => (
-  <section className="rounded-2xl border border-slate-800 bg-slate-900/80 p-5 md:p-6 shadow-lg shadow-slate-950/20">
+  <section className="card p-5 md:p-6">
     <div className="mb-5">
-      <h2 className="text-lg font-semibold text-slate-100">{title}</h2>
+      <h2 className="text-lg font-semibold text-ink">{title}</h2>
       {description && (
-        <p className="mt-1 text-sm text-slate-500">{description}</p>
+        <p className="mt-1 text-sm text-ink-muted">{description}</p>
       )}
     </div>
     {children}
@@ -81,14 +85,12 @@ const FieldGroup = ({ title, description, children }) => (
 
 const SelectField = ({ label, name, value, onChange, options }) => (
   <div className="w-full">
-    <label className="block text-sm font-medium text-slate-300 mb-2">
-      {label}
-    </label>
+    <label className="block text-sm font-medium text-ink mb-2">{label}</label>
     <select
       name={name}
       value={value}
       onChange={onChange}
-      className="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-all duration-200"
+      className={selectClass}
     >
       <option value="">Select {label.toLowerCase()}</option>
       {options.map((option) => (
@@ -126,14 +128,16 @@ const RepeatableSection = ({
   <FieldGroup title={title} description={description}>
     <div className="space-y-4">{rows.map(renderRow)}</div>
     {(!maxRows || rows.length < maxRows) && (
-      <button
+      <Button
         type="button"
+        variant="outline"
+        size="sm"
+        icon={Plus}
         onClick={onAdd}
-        className="mt-4 inline-flex items-center gap-2 rounded-lg border border-slate-700 px-4 py-2 text-sm font-medium text-slate-200 transition hover:border-cyan-500/50 hover:text-cyan-300"
+        className="mt-4"
       >
-        <Plus className="h-4 w-4" />
         {addLabel}
-      </button>
+      </Button>
     )}
   </FieldGroup>
 );
@@ -143,7 +147,7 @@ const RemoveButton = ({ disabled, onClick }) => (
     type="button"
     disabled={disabled}
     onClick={onClick}
-    className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-700 text-slate-400 transition hover:border-red-500/50 hover:text-red-400 disabled:cursor-not-allowed disabled:opacity-40"
+    className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border text-ink-muted transition hover:border-red-500/50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-40"
     aria-label="Remove row"
   >
     <Trash2 className="h-4 w-4" />
@@ -258,37 +262,24 @@ const SubmitCvPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950">
-      <section className="pt-24 pb-10 bg-slate-900">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="max-w-3xl"
-          >
-            <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-500/15 text-cyan-400 ring-1 ring-cyan-400/20">
-              <UserRound className="h-6 w-6" />
-            </div>
-            <h1 className="text-4xl md:text-5xl font-bold text-slate-100">
-              Submit Your CV
-            </h1>
-            <p className="mt-4 text-lg leading-8 text-slate-400">
-              Share your profile with CodeCraft.BD. No account or registration
-              is required.
-            </p>
-          </motion.div>
-        </div>
-      </section>
+    <div>
+      <PageHero
+        subtitle="Careers"
+        title="Submit your CV"
+        description="Share your profile with CodeCraft.BD. No account or registration is required."
+      />
 
-      <section className="py-12 md:py-16">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="pb-16 md:pb-20">
+        <div className="container-custom max-w-4xl">
           {isSubmitted ? (
-            <div className="rounded-2xl border border-green-500/20 bg-green-500/10 p-8 text-center">
-              <CheckCircle2 className="mx-auto mb-4 h-12 w-12 text-green-400" />
-              <h2 className="text-2xl font-semibold text-slate-100">
-                CV Submitted Successfully
+            <div className="card p-8 text-center">
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-accent-soft">
+                <CheckCircle2 className="h-7 w-7 text-accent" />
+              </div>
+              <h2 className="text-2xl font-semibold text-ink">
+                CV submitted successfully
               </h2>
-              <p className="mt-3 text-slate-400">
+              <p className="mt-3 text-ink-muted">
                 Thank you for sharing your profile. Our team will review it.
               </p>
               <Button
@@ -434,10 +425,10 @@ const SubmitCvPage = () => {
                 renderRow={(row, index) => (
                   <div
                     key={index}
-                    className="rounded-xl border border-slate-800 bg-slate-950/50 p-4"
+                    className="rounded-lg border border-border bg-canvas p-4"
                   >
                     <div className="mb-4 flex items-center justify-between">
-                      <h3 className="text-sm font-semibold text-slate-200">
+                      <h3 className="text-sm font-semibold text-ink">
                         Exam {index + 1}
                       </h3>
                       <RemoveButton
@@ -566,10 +557,10 @@ const SubmitCvPage = () => {
                 renderRow={(row, index) => (
                   <div
                     key={index}
-                    className="rounded-xl border border-slate-800 bg-slate-950/50 p-4"
+                    className="rounded-lg border border-border bg-canvas p-4"
                   >
                     <div className="mb-4 flex items-center justify-between">
-                      <h3 className="text-sm font-semibold text-slate-200">
+                      <h3 className="text-sm font-semibold text-ink">
                         Training {index + 1}
                       </h3>
                       <RemoveButton
@@ -633,10 +624,10 @@ const SubmitCvPage = () => {
                 renderRow={(row, index) => (
                   <div
                     key={index}
-                    className="rounded-xl border border-slate-800 bg-slate-950/50 p-4"
+                    className="rounded-lg border border-border bg-canvas p-4"
                   >
                     <div className="mb-4 flex items-center justify-between">
-                      <h3 className="text-sm font-semibold text-slate-200">
+                      <h3 className="text-sm font-semibold text-ink">
                         Language {index + 1}
                       </h3>
                       <RemoveButton
@@ -710,10 +701,10 @@ const SubmitCvPage = () => {
                 renderRow={(row, index) => (
                   <div
                     key={index}
-                    className="rounded-xl border border-slate-800 bg-slate-950/50 p-4"
+                    className="rounded-lg border border-border bg-canvas p-4"
                   >
                     <div className="mb-4 flex items-center justify-between">
-                      <h3 className="text-sm font-semibold text-slate-200">
+                      <h3 className="text-sm font-semibold text-ink">
                         Reference {index + 1}
                       </h3>
                       <RemoveButton

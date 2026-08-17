@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
-import { motion } from "framer-motion";
 import { toast } from "sonner";
 
 import ProjectCard from "@/components/website/ProjectCard";
+import PageHero from "@/components/website/PageHero";
 import CTASection from "@/components/website/CTASection";
+import Loader from "@/components/common/Loader";
+import EmptyState from "@/components/common/EmptyState";
+import Button from "@/components/common/Button";
 import { getAllProjects } from "@/services/projectService";
-import { useWebsiteStats } from "@/hooks/useWebsiteStats";
 
 const getProjectsFromResponse = (response) => {
   if (Array.isArray(response)) return response;
@@ -29,9 +31,7 @@ const normalizeProject = (project = {}) => ({
   isActive:
     typeof project.isActive === "boolean"
       ? project.isActive
-      : project.status === "inactive"
-        ? false
-        : true,
+      : project.status !== "inactive",
   completedAt: project.completedAt || project.completionDate || null,
   technologies: Array.isArray(project.technologies) ? project.technologies : [],
 });
@@ -40,7 +40,7 @@ const ProjectsPage = () => {
   const [projects, setProjects] = useState([]);
   const [activeCategory, setActiveCategory] = useState("All");
   const [isLoading, setIsLoading] = useState(true);
-  const { stats } = useWebsiteStats();
+  const [error, setError] = useState("");
 
   useEffect(() => {
     let mounted = true;
@@ -48,25 +48,26 @@ const ProjectsPage = () => {
     const fetchProjects = async () => {
       try {
         setIsLoading(true);
-
+        setError("");
         const response = await getAllProjects();
         const projectsData = getProjectsFromResponse(response)
           .map(normalizeProject)
           .filter((project) => project.isActive);
-
         if (mounted) setProjects(projectsData);
-      } catch (error) {
-        toast.error(
-          error?.response?.data?.message || "Failed to load projects",
-        );
-        if (mounted) setProjects([]);
+      } catch (err) {
+        const message =
+          err?.response?.data?.message || "Failed to load projects";
+        toast.error(message);
+        if (mounted) {
+          setError(message);
+          setProjects([]);
+        }
       } finally {
         if (mounted) setIsLoading(false);
       }
     };
 
     fetchProjects();
-
     return () => {
       mounted = false;
     };
@@ -76,63 +77,46 @@ const ProjectsPage = () => {
     const uniqueCategories = new Set(
       projects.map((project) => project.category).filter(Boolean),
     );
-
     return ["All", ...uniqueCategories];
   }, [projects]);
 
   const visibleProjects = useMemo(() => {
     if (activeCategory === "All") return projects;
-
     return projects.filter((project) => project.category === activeCategory);
   }, [projects, activeCategory]);
 
   return (
-    <div className="min-h-screen">
-      <section className="pt-32 pb-16 bg-slate-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center max-w-3xl mx-auto"
-          >
-            <h1 className="text-4xl md:text-5xl font-bold text-slate-100 mb-6">
-              Our <span className="text-cyan-500">Projects</span>
-            </h1>
-            <p className="text-lg text-slate-400">
-              Explore our portfolio of successful projects across various
-              industries. Each project represents our commitment to excellence.
-            </p>
-          </motion.div>
-        </div>
-      </section>
+    <div>
+      <PageHero
+        subtitle="Work"
+        title="Selected projects"
+        description="Case studies across products, platforms, and business systems."
+      />
 
-      <section className="py-16 md:py-20 bg-slate-950">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="pb-16 md:pb-20">
+        <div className="container-custom">
           {!isLoading && categories.length > 1 && (
-            <div className="flex flex-wrap justify-center gap-3 mb-12">
+            <div className="flex flex-wrap gap-2 mb-10">
               {categories.map((category) => (
-                <button
+                <Button
                   key={category}
                   type="button"
+                  size="sm"
+                  variant={category === activeCategory ? "primary" : "outline"}
                   onClick={() => setActiveCategory(category)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                    category === activeCategory
-                      ? "bg-cyan-500 text-slate-900"
-                      : "bg-slate-800 text-slate-300 hover:bg-slate-700"
-                  }`}
                 >
                   {category}
-                </button>
+                </Button>
               ))}
             </div>
           )}
 
           {isLoading ? (
-            <div className="glass rounded-xl p-6 border border-slate-700/50 text-center">
-              <p className="text-slate-400">Loading projects...</p>
-            </div>
+            <Loader text="Loading projects..." className="py-20" />
+          ) : error ? (
+            <EmptyState title="Could not load projects" description={error} />
           ) : visibleProjects.length > 0 ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
               {visibleProjects.map((project, index) => (
                 <ProjectCard
                   key={project._id || project.slug}
@@ -142,45 +126,11 @@ const ProjectsPage = () => {
               ))}
             </div>
           ) : (
-            <div className="glass rounded-xl p-8 border border-slate-700/50 text-center">
-              <h2 className="text-xl font-semibold text-slate-100 mb-2">
-                No projects found
-              </h2>
-              <p className="text-slate-400">
-                There are no active projects in this category yet.
-              </p>
-            </div>
+            <EmptyState
+              title="No projects found"
+              description="There are no active projects in this category yet."
+            />
           )}
-        </div>
-      </section>
-
-      <section className="py-16 bg-slate-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {[
-              { number: stats.projectsCompleted, label: "Projects Completed" },
-              {
-                number: `${Math.max(categories.length - 1, 0)}+`,
-                label: "Categories",
-              },
-              { number: stats.happyClients, label: "Happy Clients" },
-              { number: stats.yearsExperience, label: "Years Experience" },
-            ].map((stat, index) => (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className="glass rounded-xl p-6 border border-slate-700/50 text-center"
-              >
-                <p className="text-4xl font-bold text-cyan-500 mb-2">
-                  {stat.number}
-                </p>
-                <p className="text-slate-400 text-sm">{stat.label}</p>
-              </motion.div>
-            ))}
-          </div>
         </div>
       </section>
 

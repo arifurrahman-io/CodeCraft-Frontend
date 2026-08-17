@@ -1,101 +1,123 @@
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import BlogCard from "@/components/website/BlogCard";
+import PageHero from "@/components/website/PageHero";
 import CTASection from "@/components/website/CTASection";
+import Loader from "@/components/common/Loader";
+import EmptyState from "@/components/common/EmptyState";
+import Button from "@/components/common/Button";
 import { getAllBlogs } from "@/services/blogService";
+
+const getBlogs = (response) => {
+  if (Array.isArray(response)) return response;
+  if (Array.isArray(response?.data)) return response.data;
+  if (Array.isArray(response?.data?.blogs)) return response.data.blogs;
+  return [];
+};
 
 const BlogsPage = () => {
   const [blogs, setBlogs] = useState([]);
   const [activeCategory, setActiveCategory] = useState("All");
-  const publishedBlogs = blogs.filter((blog) => blog.isPublished);
-  const categories = ["All", ...new Set(publishedBlogs.map((b) => b.category))];
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        setLoading(true);
+        setError("");
+        const response = await getAllBlogs();
+        if (!mounted) return;
+        setBlogs(getBlogs(response));
+      } catch (err) {
+        const message = err?.response?.data?.message || "Failed to load blogs";
+        toast.error(message);
+        if (mounted) {
+          setError(message);
+          setBlogs([]);
+        }
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const publishedBlogs = useMemo(
+    () =>
+      blogs.filter((blog) =>
+        typeof blog.isPublished === "boolean"
+          ? blog.isPublished
+          : blog.status === "published",
+      ),
+    [blogs],
+  );
+
+  const categories = useMemo(
+    () => [
+      "All",
+      ...new Set(publishedBlogs.map((b) => b.category).filter(Boolean)),
+    ],
+    [publishedBlogs],
+  );
+
   const visibleBlogs =
     activeCategory === "All"
       ? publishedBlogs
       : publishedBlogs.filter((blog) => blog.category === activeCategory);
 
-  useEffect(() => {
-    getAllBlogs().then((response) => setBlogs(response.data || []));
-  }, []);
-
   return (
-    <div className="min-h-screen">
-      {/* Hero */}
-      <section className="pt-32 pb-16 bg-slate-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center max-w-3xl mx-auto"
-          >
-            <h1 className="text-4xl md:text-5xl font-bold text-slate-100 mb-6">
-              Our <span className="text-cyan-500">Blog</span>
-            </h1>
-            <p className="text-lg text-slate-400">
-              Stay updated with the latest insights, tutorials, and news from
-              the world of software development.
-            </p>
-          </motion.div>
+    <div>
+      <PageHero
+        subtitle="Insights"
+        title="From the blog"
+        description="Practical notes on product engineering, delivery, and digital growth."
+      />
+
+      <section className="pb-16 md:pb-20">
+        <div className="container-custom">
+          {!loading && categories.length > 1 && (
+            <div className="flex flex-wrap gap-2 mb-10">
+              {categories.map((category) => (
+                <Button
+                  key={category}
+                  type="button"
+                  size="sm"
+                  variant={category === activeCategory ? "primary" : "outline"}
+                  onClick={() => setActiveCategory(category)}
+                >
+                  {category}
+                </Button>
+              ))}
+            </div>
+          )}
+
+          {loading ? (
+            <Loader text="Loading articles..." className="py-20" />
+          ) : error ? (
+            <EmptyState title="Could not load articles" description={error} />
+          ) : visibleBlogs.length > 0 ? (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
+              {visibleBlogs.map((blog, index) => (
+                <BlogCard
+                  key={blog._id || blog.slug}
+                  blog={blog}
+                  index={index}
+                />
+              ))}
+            </div>
+          ) : (
+            <EmptyState
+              title="No articles found"
+              description="Published posts in this category will appear here."
+            />
+          )}
         </div>
       </section>
 
-      {/* Blogs Grid */}
-      <section className="py-16 md:py-20 bg-slate-950">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Category Filter */}
-          <div className="flex flex-wrap justify-center gap-3 mb-12">
-            {categories.map((category) => (
-              <button
-                key={category}
-                onClick={() => setActiveCategory(category)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  category === activeCategory
-                    ? "bg-cyan-500 text-slate-900"
-                    : "bg-slate-800 text-slate-300 hover:bg-slate-700"
-                }`}
-              >
-                {category}
-              </button>
-            ))}
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {visibleBlogs.map((blog, index) => (
-              <BlogCard key={blog._id} blog={blog} index={index} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Newsletter */}
-      <section className="py-16 md:py-20 bg-slate-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="glass rounded-2xl p-8 md:p-12 border border-slate-700/50 text-center">
-            <h2 className="text-3xl font-bold text-slate-100 mb-4">
-              Subscribe to Our Newsletter
-            </h2>
-            <p className="text-lg text-slate-400 mb-8 max-w-2xl mx-auto">
-              Get the latest articles and insights delivered directly to your
-              inbox.
-            </p>
-            <form className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="flex-1 px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
-              />
-              <button
-                type="submit"
-                className="px-6 py-3 bg-cyan-500 text-slate-900 rounded-lg font-medium hover:bg-cyan-400 transition-colors"
-              >
-                Subscribe
-              </button>
-            </form>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
       <CTASection />
     </div>
   );

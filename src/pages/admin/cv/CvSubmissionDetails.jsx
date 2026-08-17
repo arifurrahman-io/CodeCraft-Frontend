@@ -12,7 +12,15 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import Button from "@/components/common/Button";
-import { getCvSubmissionById } from "@/services/cvSubmissionService";
+import EmptyState from "@/components/common/EmptyState";
+import Loader from "@/components/common/Loader";
+import StatusBadge from "@/components/admin/StatusBadge";
+import {
+  getCvSubmissionById,
+  updateCvSubmissionStatus,
+} from "@/services/cvSubmissionService";
+
+const CV_STATUSES = ["new", "reviewing", "shortlisted", "rejected"];
 
 const getSubmissionFromResponse = (response) =>
   response?.data?.submission ||
@@ -27,6 +35,8 @@ const normalizeSubmission = (submission = {}) => ({
   ...submission,
   _id: submission._id || submission.id,
   fullName: submission.fullName || "Unknown",
+  status: submission.status || "new",
+  adminNotes: submission.adminNotes || "",
   educationalQualifications: Array.isArray(submission.educationalQualifications)
     ? submission.educationalQualifications
     : [],
@@ -50,16 +60,16 @@ const formatDate = (date) => {
 };
 
 const DetailCard = ({ title, children }) => (
-  <section className="glass rounded-xl p-6 border border-slate-700/50">
-    <h2 className="mb-4 text-lg font-semibold text-slate-100">{title}</h2>
+  <section className="bg-surface rounded-xl p-6 border border-border">
+    <h2 className="mb-4 text-lg font-semibold text-ink">{title}</h2>
     {children}
   </section>
 );
 
 const InfoItem = ({ label, value }) => (
   <div>
-    <p className="text-sm text-slate-500">{label}</p>
-    <p className="mt-1 whitespace-pre-line break-words text-slate-200">
+    <p className="text-sm text-ink-muted">{label}</p>
+    <p className="mt-1 whitespace-pre-line break-words text-ink">
       {value || "N/A"}
     </p>
   </div>
@@ -70,6 +80,9 @@ const CvSubmissionDetailsPage = () => {
   const navigate = useNavigate();
   const [submission, setSubmission] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [status, setStatus] = useState("new");
+  const [adminNotes, setAdminNotes] = useState("");
+  const [isSavingStatus, setIsSavingStatus] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -82,7 +95,11 @@ const CvSubmissionDetailsPage = () => {
           getSubmissionFromResponse(response),
         );
 
-        if (mounted) setSubmission(submissionData);
+        if (mounted) {
+          setSubmission(submissionData);
+          setStatus(submissionData.status || "new");
+          setAdminNotes(submissionData.adminNotes || "");
+        }
       } catch (error) {
         toast.error(error?.response?.data?.message || "Failed to load CV");
         if (mounted) setSubmission(null);
@@ -98,25 +115,49 @@ const CvSubmissionDetailsPage = () => {
     };
   }, [id]);
 
+  const handleStatusSave = async () => {
+    try {
+      setIsSavingStatus(true);
+      const response = await updateCvSubmissionStatus(id, {
+        status,
+        notes: adminNotes,
+      });
+      const updated = normalizeSubmission(getSubmissionFromResponse(response));
+      setSubmission(updated);
+      setStatus(updated.status);
+      setAdminNotes(updated.adminNotes || "");
+      toast.success("CV status updated");
+    } catch (error) {
+      toast.error(
+        error?.response?.data?.message || "Failed to update CV status",
+      );
+    } finally {
+      setIsSavingStatus(false);
+    }
+  };
+
   if (isLoading) {
     return (
-      <div className="glass rounded-xl p-6 border border-slate-700/50">
-        <p className="text-slate-300">Loading CV details...</p>
+      <div className="bg-surface rounded-xl p-12 border border-border">
+        <Loader text="Loading CV details..." />
       </div>
     );
   }
 
   if (!submission) {
     return (
-      <div className="text-center py-12">
-        <p className="text-slate-400 mb-4">CV submission not found</p>
-        <Button
-          variant="outline"
-          onClick={() => navigate("/admin/cv-submissions")}
-        >
-          Back to CV Submissions
-        </Button>
-      </div>
+      <EmptyState
+        title="CV submission not found"
+        description="This submission may have been deleted or the link is invalid."
+        action={
+          <Button
+            variant="outline"
+            onClick={() => navigate("/admin/cv-submissions")}
+          >
+            Back to CV Submissions
+          </Button>
+        }
+      />
     );
   }
 
@@ -126,41 +167,80 @@ const CvSubmissionDetailsPage = () => {
         <button
           type="button"
           onClick={() => navigate("/admin/cv-submissions")}
-          className="p-2 rounded-lg text-slate-400 hover:text-slate-100 hover:bg-slate-800"
+          className="p-2 rounded-lg text-ink-muted hover:text-ink hover:bg-ink/5"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div>
-          <h1 className="text-2xl font-bold text-slate-100">
-            {submission.fullName}
-          </h1>
-          <p className="text-slate-400">CV submission details</p>
+          <div className="flex items-center gap-3 flex-wrap">
+            <h1 className="text-2xl font-bold text-ink">
+              {submission.fullName}
+            </h1>
+            <StatusBadge status={submission.status} />
+          </div>
+          <p className="text-ink-muted">CV submission details</p>
         </div>
       </div>
+
+      <DetailCard title="Review status">
+        <div className="grid md:grid-cols-[200px_1fr_auto] gap-4 items-end">
+          <div>
+            <label className="block text-sm font-medium text-ink mb-2">
+              Status
+            </label>
+            <select
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+              className="input"
+            >
+              {CV_STATUSES.map((value) => (
+                <option key={value} value={value}>
+                  {value}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-ink mb-2">
+              Internal notes
+            </label>
+            <textarea
+              value={adminNotes}
+              onChange={(e) => setAdminNotes(e.target.value)}
+              rows={2}
+              className="input resize-none"
+              placeholder="Optional notes for your team"
+            />
+          </div>
+          <Button onClick={handleStatusSave} isLoading={isSavingStatus}>
+            Save status
+          </Button>
+        </div>
+      </DetailCard>
 
       <DetailCard title="Contact Summary">
         <div className="grid md:grid-cols-2 gap-6">
           <div className="flex items-center gap-3">
-            <User className="w-5 h-5 text-slate-500" />
+            <User className="w-5 h-5 text-ink-muted" />
             <InfoItem label="Full Name" value={submission.fullName} />
           </div>
           <div className="flex items-center gap-3">
-            <Mail className="w-5 h-5 text-slate-500" />
+            <Mail className="w-5 h-5 text-ink-muted" />
             <InfoItem label="Email" value={submission.emailAddress} />
           </div>
           <div className="flex items-center gap-3">
-            <Phone className="w-5 h-5 text-slate-500" />
+            <Phone className="w-5 h-5 text-ink-muted" />
             <InfoItem label="Mobile" value={submission.mobileNumber} />
           </div>
           <div className="flex items-center gap-3">
-            <Calendar className="w-5 h-5 text-slate-500" />
+            <Calendar className="w-5 h-5 text-ink-muted" />
             <InfoItem
               label="Submitted"
               value={formatDate(submission.createdAt)}
             />
           </div>
           <div className="md:col-span-2 flex items-start gap-3">
-            <MapPin className="mt-1 w-5 h-5 text-slate-500" />
+            <MapPin className="mt-1 w-5 h-5 text-ink-muted" />
             <InfoItem label="Present Address" value={submission.presentAddress} />
           </div>
         </div>
@@ -200,9 +280,9 @@ const CvSubmissionDetailsPage = () => {
             submission.educationalQualifications.map((item, index) => (
               <div
                 key={index}
-                className="rounded-xl border border-slate-800 bg-slate-950/50 p-4"
+                className="rounded-xl border border-border bg-canvas p-4"
               >
-                <div className="mb-3 flex items-center gap-2 text-cyan-400">
+                <div className="mb-3 flex items-center gap-2 text-accent">
                   <GraduationCap className="h-4 w-4" />
                   <h3 className="font-medium">{item.degreeOrExamName}</h3>
                 </div>
@@ -222,7 +302,7 @@ const CvSubmissionDetailsPage = () => {
               </div>
             ))
           ) : (
-            <p className="text-slate-500">No education added.</p>
+            <p className="text-ink-muted">No education added.</p>
           )}
         </div>
       </DetailCard>
@@ -243,7 +323,7 @@ const CvSubmissionDetailsPage = () => {
             submission.trainingAndCertifications.map((item, index) => (
               <div
                 key={index}
-                className="grid md:grid-cols-3 gap-4 rounded-xl border border-slate-800 bg-slate-950/50 p-4"
+                className="grid md:grid-cols-3 gap-4 rounded-xl border border-border bg-canvas p-4"
               >
                 <InfoItem label="Training Title" value={item.trainingTitle} />
                 <InfoItem
@@ -254,7 +334,7 @@ const CvSubmissionDetailsPage = () => {
               </div>
             ))
           ) : (
-            <p className="text-slate-500">No training added.</p>
+            <p className="text-ink-muted">No training added.</p>
           )}
         </div>
       </DetailCard>
@@ -265,21 +345,21 @@ const CvSubmissionDetailsPage = () => {
             submission.languageProficiency.map((item, index) => (
               <div
                 key={index}
-                className="flex items-center gap-3 rounded-xl border border-slate-800 bg-slate-950/50 p-4"
+                className="flex items-center gap-3 rounded-xl border border-border bg-canvas p-4"
               >
-                <Languages className="h-5 w-5 text-slate-500" />
+                <Languages className="h-5 w-5 text-ink-muted" />
                 <div>
-                  <p className="font-medium text-slate-100">
+                  <p className="font-medium text-ink">
                     {item.languageName || "N/A"}
                   </p>
-                  <p className="text-sm text-slate-500">
+                  <p className="text-sm text-ink-muted">
                     {item.proficiencyLevel || "N/A"}
                   </p>
                 </div>
               </div>
             ))
           ) : (
-            <p className="text-slate-500">No language proficiency added.</p>
+            <p className="text-ink-muted">No language proficiency added.</p>
           )}
         </div>
       </DetailCard>
@@ -303,9 +383,9 @@ const CvSubmissionDetailsPage = () => {
             submission.references.map((item, index) => (
               <div
                 key={index}
-                className="rounded-xl border border-slate-800 bg-slate-950/50 p-4"
+                className="rounded-xl border border-border bg-canvas p-4"
               >
-                <h3 className="mb-3 font-medium text-slate-100">
+                <h3 className="mb-3 font-medium text-ink">
                   {item.name || `Reference ${index + 1}`}
                 </h3>
                 <div className="space-y-3">
@@ -318,7 +398,7 @@ const CvSubmissionDetailsPage = () => {
               </div>
             ))
           ) : (
-            <p className="text-slate-500">No references added.</p>
+            <p className="text-ink-muted">No references added.</p>
           )}
         </div>
       </DetailCard>

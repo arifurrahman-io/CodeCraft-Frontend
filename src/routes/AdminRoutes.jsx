@@ -18,6 +18,9 @@ import MessageDetailsPage from "@/pages/admin/messages/MessageDetails";
 import CvSubmissionListPage from "@/pages/admin/cv/CvSubmissionList";
 import CvSubmissionDetailsPage from "@/pages/admin/cv/CvSubmissionDetails";
 import WebsiteSettingsPage from "@/pages/admin/settings/WebsiteSettings";
+import InvoiceListPage from "@/pages/admin/invoices/InvoiceList";
+import InvoiceFormPage from "@/pages/admin/invoices/InvoiceForm";
+import InvoiceViewPage from "@/pages/admin/invoices/InvoiceView";
 
 const AdminRoutes = () => {
   return (
@@ -65,6 +68,11 @@ const AdminRoutes = () => {
             path="cv-submissions/:id"
             element={<CvSubmissionDetailsPage />}
           />
+
+          <Route path="invoices" element={<InvoiceListPage />} />
+          <Route path="invoices/create" element={<InvoiceFormPage />} />
+          <Route path="invoices/:id/edit" element={<InvoiceFormPage />} />
+          <Route path="invoices/:id/view" element={<InvoiceViewPage />} />
 
           <Route path="settings" element={<WebsiteSettingsPage />} />
         </Route>

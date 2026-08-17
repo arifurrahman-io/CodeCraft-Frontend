@@ -700,9 +700,9 @@ export const SETTINGS_DATA = {
   branding: {
     logo: "",
     favicon: "",
-    primaryColor: "#06b6d4",
-    secondaryColor: "#1e293b",
-    accentColor: "#8b5cf6",
+    primaryColor: "#0d9488",
+    secondaryColor: "#0a1628",
+    accentColor: "#0f766e",
   },
   statistics: {
     yearsExperience: "",

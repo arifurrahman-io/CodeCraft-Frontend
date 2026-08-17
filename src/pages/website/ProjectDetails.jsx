@@ -16,6 +16,9 @@ import Button from "@/components/common/Button";
 import SEO from "@/components/common/SEO";
 import SectionHeader from "@/components/common/SectionHeader";
 import ShareActions from "@/components/common/ShareActions";
+import Loader from "@/components/common/Loader";
+import EmptyState from "@/components/common/EmptyState";
+import CTASection from "@/components/website/CTASection";
 import { getProjectBySlug } from "@/services/projectService";
 
 const fallbackImage =
@@ -98,7 +101,7 @@ const renderParagraphs = (text) => {
       {paragraphs.map((paragraph, index) => (
         <p
           key={index}
-          className="whitespace-pre-line text-lg leading-9 text-slate-400"
+          className="whitespace-pre-line text-lg leading-relaxed text-ink-muted"
         >
           {paragraph}
         </p>
@@ -112,6 +115,7 @@ const ProjectDetailsPage = () => {
 
   const [project, setProject] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
 
   const normalizedProject = useMemo(() => normalizeProject(project), [project]);
 
@@ -121,17 +125,19 @@ const ProjectDetailsPage = () => {
     const fetchProject = async () => {
       try {
         setIsLoading(true);
+        setError("");
 
         const response = await getProjectBySlug(slug);
         const projectData = getProjectFromResponse(response);
 
         if (mounted) setProject(projectData);
-      } catch (error) {
+      } catch (err) {
         if (mounted) {
+          const message =
+            err?.response?.data?.message || "Failed to load project";
           setProject(null);
-          toast.error(
-            error?.response?.data?.message || "Failed to load project",
-          );
+          setError(message);
+          toast.error(message);
         }
       } finally {
         if (mounted) setIsLoading(false);
@@ -147,26 +153,28 @@ const ProjectDetailsPage = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
-        <p className="text-slate-400">Loading project...</p>
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <Loader text="Loading project..." className="py-20" />
       </div>
     );
   }
 
-  if (!normalizedProject || !normalizedProject.isActive) {
+  if (error || !normalizedProject || !normalizedProject.isActive) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center px-4">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold text-slate-100 mb-4">
-            Project Not Found
-          </h1>
-          <p className="text-slate-400 mb-6">
-            The project may be unavailable or inactive.
-          </p>
-          <Link to="/projects">
-            <Button variant="outline">Back to Projects</Button>
-          </Link>
-        </div>
+      <div className="min-h-[60vh] flex items-center justify-center px-4">
+        <EmptyState
+          title="Project not found"
+          description={
+            error || "The project may be unavailable or inactive."
+          }
+          action={
+            <Link to="/projects">
+              <Button variant="outline" icon={ArrowLeft}>
+                Back to Projects
+              </Button>
+            </Link>
+          }
+        />
       </div>
     );
   }
@@ -201,7 +209,7 @@ const ProjectDetailsPage = () => {
   };
 
   return (
-    <div className="min-h-screen">
+    <div>
       <SEO
         title={normalizedProject.seoTitle || normalizedProject.title}
         description={projectDescription}
@@ -216,62 +224,67 @@ const ProjectDetailsPage = () => {
         structuredData={projectSchema}
       />
 
-      <section className="relative overflow-hidden bg-slate-950 pt-28 pb-14 md:pt-32 md:pb-16">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_12%_8%,rgba(6,182,212,0.22),transparent_30%),radial-gradient(circle_at_86%_16%,rgba(59,130,246,0.14),transparent_28%),linear-gradient(135deg,rgba(15,23,42,0.88),rgba(2,6,23,0.98))]" />
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-400/40 to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-slate-700/80 to-transparent" />
-
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="pt-12 pb-10 md:pt-16 md:pb-14">
+        <div className="container-custom">
           <Link
             to="/projects"
-            className="mb-8 inline-flex items-center gap-2 rounded-full border border-slate-800 bg-slate-900/70 px-4 py-2 text-sm font-medium text-slate-300 transition-colors hover:border-cyan-500/40 hover:text-cyan-300"
+            className="mb-8 inline-flex items-center gap-2 text-sm font-medium text-ink-muted transition-colors hover:text-accent"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Projects
           </Link>
 
-          <div className="grid gap-10 lg:grid-cols-[0.94fr_1.06fr] lg:items-center xl:gap-14">
+          <div className="grid gap-10 lg:grid-cols-2 lg:items-start lg:gap-14">
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.45 }}
             >
-              <div className="mb-5 flex flex-wrap items-center gap-2.5">
-                <span className="rounded-full border border-cyan-500/30 bg-cyan-500/15 px-3 py-1 text-xs font-semibold text-cyan-200">
+              <div className="mb-4 flex flex-wrap items-center gap-2">
+                <span className="rounded-md bg-accent-soft px-2.5 py-1 text-xs font-semibold text-accent">
                   {normalizedProject.category}
                 </span>
-
                 {normalizedProject.isFeatured && (
-                  <span className="rounded-full border border-yellow-500/30 bg-yellow-500/15 px-3 py-1 text-xs font-semibold text-yellow-300">
+                  <span className="rounded-md border border-border px-2.5 py-1 text-xs font-semibold text-ink-muted">
                     Featured
                   </span>
                 )}
               </div>
 
-              <h1 className="max-w-3xl text-3xl font-bold leading-[1.15] text-slate-50 sm:text-4xl lg:text-5xl">
+              <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-ink tracking-tight leading-tight">
                 {normalizedProject.title}
               </h1>
 
-              <p className="mt-5 max-w-2xl text-base leading-8 text-slate-300 md:text-lg">
+              <p className="mt-5 text-lg text-ink-muted leading-relaxed max-w-2xl">
                 {normalizedProject.shortDescription}
               </p>
 
-              <div className="mt-7 flex flex-wrap items-center gap-3 text-sm text-slate-400">
-                <div className="flex min-h-12 items-center gap-2 rounded-2xl border border-slate-800 bg-slate-900/65 px-4 py-3">
-                  <Calendar className="w-4 h-4 text-cyan-400" />
-                  <span>
-                    Completed: {formatDate(normalizedProject.completedAt)}
-                  </span>
+              <div className="mt-7 flex flex-wrap gap-6 text-sm">
+                <div className="border-t border-border pt-3 min-w-[140px]">
+                  <div className="flex items-center gap-2 text-ink-subtle mb-1">
+                    <Calendar className="w-4 h-4 text-accent" />
+                    Completed
+                  </div>
+                  <p className="text-ink font-medium">
+                    {formatDate(normalizedProject.completedAt)}
+                  </p>
                 </div>
-
-                <div className="flex min-h-12 items-center gap-2 rounded-2xl border border-slate-800 bg-slate-900/65 px-4 py-3">
-                  <User className="w-4 h-4 text-cyan-400" />
-                  <span>{normalizedProject.clientName}</span>
+                <div className="border-t border-border pt-3 min-w-[140px]">
+                  <div className="flex items-center gap-2 text-ink-subtle mb-1">
+                    <User className="w-4 h-4 text-accent" />
+                    Client
+                  </div>
+                  <p className="text-ink font-medium">
+                    {normalizedProject.clientName}
+                  </p>
                 </div>
-
-                <div className="flex min-h-12 items-center gap-2 rounded-2xl border border-slate-800 bg-slate-900/65 px-4 py-3">
-                  <Tag className="w-4 h-4 text-cyan-400" />
-                  <span>{normalizedProject.category}</span>
+                <div className="border-t border-border pt-3 min-w-[140px]">
+                  <div className="flex items-center gap-2 text-ink-subtle mb-1">
+                    <Tag className="w-4 h-4 text-accent" />
+                    Category
+                  </div>
+                  <p className="text-ink font-medium">
+                    {normalizedProject.category}
+                  </p>
                 </div>
               </div>
 
@@ -319,16 +332,15 @@ const ProjectDetailsPage = () => {
             </motion.div>
 
             <motion.div
-              initial={{ opacity: 0, scale: 0.97 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.45, delay: 0.1 }}
-              className="relative overflow-hidden rounded-3xl border border-slate-700/60 bg-slate-900/70 p-2 shadow-2xl shadow-cyan-950/30"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.08 }}
+              className="overflow-hidden rounded-xl border border-border bg-surface"
             >
-              <div className="absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300/70 to-transparent" />
               <img
                 src={normalizedProject.coverImage}
                 alt={normalizedProject.title}
-                className="h-72 w-full rounded-2xl object-cover md:h-[26rem] lg:h-[29rem]"
+                className="h-72 w-full object-cover md:h-[26rem]"
                 onError={(e) => {
                   e.currentTarget.src = fallbackImage;
                 }}
@@ -338,33 +350,33 @@ const ProjectDetailsPage = () => {
         </div>
       </section>
 
-      <section className="py-16 md:py-20 bg-slate-950">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="section-padding bg-surface border-y border-border">
+        <div className="container-custom">
           <div className="max-w-3xl">
-            <SectionHeader title="Project Overview" className="mb-8" />
+            <SectionHeader
+              alignment="left"
+              title="Project overview"
+              className="mb-8"
+            />
             {renderParagraphs(normalizedProject.description)}
           </div>
         </div>
       </section>
 
       {(normalizedProject.problem || normalizedProject.solution) && (
-        <section className="py-16 md:py-20 bg-slate-900">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid md:grid-cols-2 gap-6">
+        <section className="section-padding">
+          <div className="container-custom">
+            <div className="grid md:grid-cols-2 gap-10">
               {normalizedProject.problem && (
-                <div className="glass rounded-2xl p-6 border border-slate-700/50">
-                  <h2 className="text-2xl font-bold text-slate-100 mb-4">
-                    Problem
-                  </h2>
+                <div className="border-t border-border pt-6">
+                  <h2 className="text-2xl font-bold text-ink mb-4">Problem</h2>
                   {renderParagraphs(normalizedProject.problem)}
                 </div>
               )}
 
               {normalizedProject.solution && (
-                <div className="glass rounded-2xl p-6 border border-slate-700/50">
-                  <h2 className="text-2xl font-bold text-slate-100 mb-4">
-                    Solution
-                  </h2>
+                <div className="border-t border-border pt-6">
+                  <h2 className="text-2xl font-bold text-ink mb-4">Solution</h2>
                   {renderParagraphs(normalizedProject.solution)}
                 </div>
               )}
@@ -374,28 +386,27 @@ const ProjectDetailsPage = () => {
       )}
 
       {normalizedProject.features.length > 0 && (
-        <section className="py-16 md:py-20 bg-slate-950">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section className="section-padding bg-surface border-y border-border">
+          <div className="container-custom">
             <SectionHeader
+              alignment="left"
               subtitle="Key Capabilities"
-              title="Project Features"
+              title="Project features"
               className="mb-12"
             />
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {normalizedProject.features.map((feature, index) => (
                 <motion.div
                   key={`${feature}-${index}`}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 12 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.06 }}
-                  className="glass rounded-xl p-6 border border-slate-700/50"
+                  className="border-t border-border pt-5"
                 >
-                  <CheckCircle2 className="w-6 h-6 text-cyan-500 mb-4" />
-                  <h3 className="text-lg font-semibold text-slate-100">
-                    {feature}
-                  </h3>
+                  <CheckCircle2 className="w-5 h-5 text-accent mb-3" />
+                  <h3 className="text-lg font-semibold text-ink">{feature}</h3>
                 </motion.div>
               ))}
             </div>
@@ -404,23 +415,24 @@ const ProjectDetailsPage = () => {
       )}
 
       {normalizedProject.technologies.length > 0 && (
-        <section className="py-16 md:py-20 bg-slate-900">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section className="section-padding">
+          <div className="container-custom">
             <SectionHeader
+              alignment="left"
               subtitle="Tech Stack"
-              title="Technologies Used"
-              className="mb-12"
+              title="Technologies used"
+              className="mb-10"
             />
 
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-2">
               {normalizedProject.technologies.map((tech, index) => (
                 <motion.span
                   key={`${tech}-${index}`}
-                  initial={{ opacity: 0, scale: 0.9 }}
+                  initial={{ opacity: 0, scale: 0.95 }}
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
-                  transition={{ delay: index * 0.05 }}
-                  className="px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 text-slate-300"
+                  transition={{ delay: index * 0.04 }}
+                  className="rounded-md border border-border bg-surface px-3 py-1.5 text-sm text-ink-muted"
                 >
                   {tech}
                 </motion.span>
@@ -431,18 +443,22 @@ const ProjectDetailsPage = () => {
       )}
 
       {galleryImages.length > 1 && (
-        <section className="py-16 md:py-20 bg-slate-950">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <SectionHeader title="Project Gallery" className="mb-12" />
+        <section className="section-padding bg-surface border-y border-border">
+          <div className="container-custom">
+            <SectionHeader
+              alignment="left"
+              title="Project gallery"
+              className="mb-12"
+            />
 
             <div className="grid md:grid-cols-2 gap-6">
               {galleryImages.map((image, index) => (
                 <motion.div
                   key={`${image}-${index}`}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 12 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  className="glass rounded-2xl overflow-hidden border border-slate-700/50"
+                  className="overflow-hidden rounded-xl border border-border"
                 >
                   <img
                     src={image}
@@ -459,21 +475,11 @@ const ProjectDetailsPage = () => {
         </section>
       )}
 
-      <section className="py-16 md:py-20 bg-slate-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="glass rounded-2xl p-8 md:p-12 border border-slate-700/50 text-center">
-            <h2 className="text-3xl font-bold text-slate-100 mb-4">
-              Have a Similar Project in Mind?
-            </h2>
-            <p className="text-lg text-slate-400 mb-8 max-w-2xl mx-auto">
-              Let's discuss your ideas and create something amazing together.
-            </p>
-            <Link to="/contact">
-              <Button size="lg">Start Your Project</Button>
-            </Link>
-          </div>
-        </div>
-      </section>
+      <CTASection
+        title="Have a similar project in mind?"
+        description="Let's discuss your ideas and create something amazing together."
+        ctaText="Start your project"
+      />
     </div>
   );
 };

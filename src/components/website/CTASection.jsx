@@ -2,91 +2,56 @@ import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import Button from "@/components/common/Button";
-import { useWebsiteStats } from "@/hooks/useWebsiteStats";
 
 const CTASection = ({
-  title = "Ready to Transform Your Business?",
-  description = "Let's discuss your project and see how we can help you achieve your goals.",
-  ctaText = "Get Started",
+  title = "Ready to build something reliable?",
+  description = "Tell us what you need. We will respond with a clear next step — scope, timeline, and approach.",
+  ctaText = "Start a project",
   ctaLink = "/contact",
-  secondaryCtaText = "View Our Work",
+  secondaryCtaText = "View our work",
   secondaryCtaLink = "/projects",
 }) => {
-  const { stats } = useWebsiteStats();
-
   return (
-    <section className="py-16 md:py-20 relative overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900" />
-      <div className="absolute inset-0 opacity-20">
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage: `linear-gradient(rgba(6, 182, 212, 0.1) 1px, transparent 1px),
-                           linear-gradient(90deg, rgba(6, 182, 212, 0.1) 1px, transparent 1px)`,
-            backgroundSize: "50px 50px",
-          }}
-        />
-      </div>
-      <div className="absolute top-0 left-1/4 w-64 h-64 bg-cyan-500/20 rounded-full blur-3xl" />
-      <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl" />
-
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="section-padding">
+      <div className="container-custom">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="glass rounded-3xl p-8 md:p-12 border border-slate-700/50"
+          transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+          className="relative overflow-hidden rounded-3xl bg-ink px-8 py-14 md:px-16 md:py-20 text-center"
         >
-          <div className="grid lg:grid-cols-2 gap-8 items-center">
-            {/* Content */}
-            <div>
-              <h2 className="text-3xl md:text-4xl font-bold text-slate-100 mb-4">
-                {title}
-              </h2>
-              <p className="text-lg text-slate-400 mb-8">{description}</p>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Link to={ctaLink}>
-                  <Button size="lg" icon={ArrowRight} iconPosition="right">
-                    {ctaText}
-                  </Button>
-                </Link>
-                <Link to={secondaryCtaLink}>
-                  <Button variant="outline" size="lg">
-                    {secondaryCtaText}
-                  </Button>
-                </Link>
-              </div>
-            </div>
+          <div
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_30%_0%,rgba(13,148,136,0.28),transparent_55%)]"
+            aria-hidden="true"
+          />
+          <div
+            className="pointer-events-none absolute -right-20 -bottom-24 h-64 w-64 rounded-full bg-accent/10 blur-3xl"
+            aria-hidden="true"
+          />
 
-            {/* Stats */}
-            <div className="grid grid-cols-2 gap-4">
-              {[
-                {
-                  number: stats.projectsCompleted,
-                  label: "Projects Completed",
-                },
-                { number: stats.yearsExperience, label: "Years Experience" },
-                { number: stats.happyClients, label: "Happy Clients" },
-                {
-                  number: stats.supportAvailability,
-                  label: "Support Available",
-                },
-              ].map((stat, index) => (
-                <motion.div
-                  key={stat.label}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.4, delay: index * 0.1 }}
-                  className="glass rounded-xl p-6 border border-slate-700/50 text-center"
+          <div className="relative">
+            <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-white tracking-tight text-balance mb-4">
+              {title}
+            </h2>
+            <p className="text-slate-300 text-lg max-w-2xl mx-auto mb-10 leading-relaxed">
+              {description}
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Link to={ctaLink}>
+                <Button size="lg" icon={ArrowRight} iconPosition="right">
+                  {ctaText}
+                </Button>
+              </Link>
+              <Link to={secondaryCtaLink}>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="border-white/25 bg-white/5 text-white hover:bg-white/12 hover:text-white focus:ring-offset-ink"
                 >
-                  <p className="text-3xl md:text-4xl font-bold text-cyan-500 mb-2">
-                    {stat.number}
-                  </p>
-                  <p className="text-sm text-slate-400">{stat.label}</p>
-                </motion.div>
-              ))}
+                  {secondaryCtaText}
+                </Button>
+              </Link>
             </div>
           </div>
         </motion.div>

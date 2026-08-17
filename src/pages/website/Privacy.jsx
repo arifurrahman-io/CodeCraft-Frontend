@@ -1,4 +1,4 @@
-import { ShieldCheck } from "lucide-react";
+import PageHero from "@/components/website/PageHero";
 import { COMPANY } from "@/utils/constants";
 
 const sections = [
@@ -48,41 +48,31 @@ const sections = [
 
 const PrivacyPage = () => {
   return (
-    <div className="min-h-screen bg-slate-950">
-      <section className="bg-slate-900 pt-28 pb-14">
-        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-          <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-500/15 text-cyan-400 ring-1 ring-cyan-400/20">
-            <ShieldCheck className="h-6 w-6" />
-          </div>
-          <h1 className="text-4xl font-bold text-slate-100 md:text-5xl">
-            Privacy Policy
-          </h1>
-          <p className="mt-4 max-w-3xl text-lg leading-8 text-slate-400">
-            This policy explains how {COMPANY.name} collects, uses, stores, and
-            protects information shared through our website, project inquiries,
-            CV submissions, and software service communications.
-          </p>
-          <p className="mt-4 text-sm text-slate-500">
-            Effective date: May 15, 2026
-          </p>
-        </div>
-      </section>
+    <div>
+      <PageHero
+        subtitle="Legal"
+        title="Privacy Policy"
+        description={`This policy explains how ${COMPANY.name} collects, uses, stores, and protects information shared through our website, project inquiries, CV submissions, and software service communications.`}
+      />
+      <div className="container-custom max-w-3xl -mt-6 mb-8">
+        <p className="text-sm text-ink-subtle">Effective date: May 15, 2026</p>
+      </div>
 
-      <section className="py-12 md:py-16">
-        <div className="mx-auto max-w-5xl space-y-6 px-4 sm:px-6 lg:px-8">
+      <section className="pb-16 md:pb-20">
+        <div className="container-custom max-w-3xl space-y-10">
           {sections.map((section) => (
             <article
               key={section.title}
-              className="rounded-2xl border border-slate-800 bg-slate-900/80 p-6 shadow-lg shadow-slate-950/20"
+              className="border-t border-border pt-6"
             >
-              <h2 className="text-xl font-semibold text-slate-100">
+              <h2 className="text-xl font-semibold text-ink mb-4">
                 {section.title}
               </h2>
-              <ul className="mt-4 space-y-3">
+              <ul className="space-y-3">
                 {section.items.map((item) => (
                   <li
                     key={item}
-                    className="leading-7 text-slate-400"
+                    className="text-ink-muted leading-relaxed pl-4 border-l-2 border-border"
                   >
                     {item}
                   </li>
@@ -91,15 +81,13 @@ const PrivacyPage = () => {
             </article>
           ))}
 
-          <article className="rounded-2xl border border-cyan-500/20 bg-cyan-500/10 p-6">
-            <h2 className="text-xl font-semibold text-slate-100">
-              Contact Us
-            </h2>
-            <p className="mt-3 leading-7 text-slate-400">
+          <article className="border-t border-border pt-6">
+            <h2 className="text-xl font-semibold text-ink mb-3">Contact us</h2>
+            <p className="text-ink-muted leading-relaxed">
               For privacy questions or data requests, contact us at{" "}
               <a
                 href={`mailto:${COMPANY.email}`}
-                className="text-cyan-400 hover:text-cyan-300"
+                className="text-accent hover:text-accent-hover font-medium"
               >
                 {COMPANY.email}
               </a>

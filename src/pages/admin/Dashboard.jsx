@@ -6,11 +6,15 @@ import {
   Briefcase,
   FolderKanban,
   FileText,
-  Users,
   MessageSquare,
+  FileUser,
+  Receipt,
   TrendingUp,
+  Users,
 } from "lucide-react";
 import DashboardCard from "@/components/admin/DashboardCard";
+import StatusBadge from "@/components/admin/StatusBadge";
+import EmptyState from "@/components/common/EmptyState";
 import { getAllServices } from "@/services/serviceService";
 import { getAllProjects } from "@/services/projectService";
 import { getAllBlogs } from "@/services/blogService";
@@ -66,18 +70,18 @@ const ActivityGraph = ({ data }) => {
     .join(" ");
 
   return (
-    <div className="glass rounded-xl border border-slate-700/50 p-6">
+    <div className="bg-surface rounded-xl border border-border p-6">
       <div className="mb-5 flex items-start justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-sm font-medium text-cyan-300">
+          <div className="flex items-center gap-2 text-sm font-medium text-accent">
             <TrendingUp className="h-4 w-4" />
             Activity graph
           </div>
-          <h2 className="mt-2 text-lg font-semibold text-slate-100">
+          <h2 className="mt-2 text-lg font-semibold text-ink">
             Content growth
           </h2>
         </div>
-        <span className="rounded-lg bg-cyan-500/10 px-3 py-1 text-sm text-cyan-300">
+        <span className="rounded-lg bg-accent-soft px-3 py-1 text-sm text-accent">
           6 months
         </span>
       </div>
@@ -91,14 +95,14 @@ const ActivityGraph = ({ data }) => {
               x2="300"
               y1={y}
               y2={y}
-              stroke="rgb(51 65 85 / 0.6)"
+              stroke="rgb(226 232 240)"
               strokeDasharray="4 6"
             />
           ))}
           <path
             d={path}
             fill="none"
-            stroke="#22d3ee"
+            stroke="#0d9488"
             strokeLinecap="round"
             strokeLinejoin="round"
             strokeWidth="4"
@@ -110,13 +114,13 @@ const ActivityGraph = ({ data }) => {
           />
           {points.map((point) => (
             <g key={point.key}>
-              <circle cx={point.x} cy={point.y} r="5" fill="#0f172a" />
-              <circle cx={point.x} cy={point.y} r="3.5" fill="#22d3ee" />
+              <circle cx={point.x} cy={point.y} r="5" fill="#ffffff" />
+              <circle cx={point.x} cy={point.y} r="3.5" fill="#0d9488" />
               <text
                 x={point.x}
                 y="170"
                 textAnchor="middle"
-                className="fill-slate-500 text-[10px]"
+                className="fill-ink-subtle text-[10px]"
               >
                 {point.label}
               </text>
@@ -124,8 +128,8 @@ const ActivityGraph = ({ data }) => {
           ))}
           <defs>
             <linearGradient id="activityGradient" x1="0" x2="0" y1="0" y2="1">
-              <stop offset="0%" stopColor="#22d3ee" />
-              <stop offset="100%" stopColor="#22d3ee" stopOpacity="0" />
+              <stop offset="0%" stopColor="#0d9488" />
+              <stop offset="100%" stopColor="#0d9488" stopOpacity="0" />
             </linearGradient>
           </defs>
         </svg>
@@ -138,16 +142,16 @@ const MetricBars = ({ items }) => {
   const maxValue = Math.max(...items.map((item) => Number(item.value) || 0), 1);
 
   return (
-    <div className="glass rounded-xl border border-slate-700/50 p-6">
+    <div className="bg-surface rounded-xl border border-border p-6">
       <div className="mb-6 flex items-center gap-3">
-        <div className="rounded-lg bg-blue-500/10 p-2 text-blue-300">
+        <div className="rounded-lg bg-accent-soft p-2 text-accent">
           <BarChart3 className="h-5 w-5" />
         </div>
         <div>
-          <h2 className="text-lg font-semibold text-slate-100">
+          <h2 className="text-lg font-semibold text-ink">
             Graph view
           </h2>
-          <p className="text-sm text-slate-500">Overview by module</p>
+          <p className="text-sm text-ink-muted">Overview by module</p>
         </div>
       </div>
       <div className="space-y-5">
@@ -156,14 +160,14 @@ const MetricBars = ({ items }) => {
           return (
             <div key={item.title}>
               <div className="mb-2 flex items-center justify-between gap-4">
-                <span className="text-sm font-medium text-slate-300">
+                <span className="text-sm font-medium text-ink">
                   {item.title.replace("Total ", "")}
                 </span>
-                <span className="text-sm text-slate-500">{item.value}</span>
+                <span className="text-sm text-ink-muted">{item.value}</span>
               </div>
-              <div className="h-3 overflow-hidden rounded-full bg-slate-800">
+              <div className="h-3 overflow-hidden rounded-full bg-canvas">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-cyan-400 to-blue-500"
+                  className="h-full rounded-full bg-gradient-to-r from-accent to-accent-hover"
                   style={{ width }}
                 />
               </div>
@@ -214,24 +218,32 @@ const DashboardPage = () => {
       value: dashboardStats?.services ?? dashboardStats?.totalServices ?? services.length,
       icon: Briefcase,
       color: "cyan",
-      trend: "up",
-      trendValue: "+2 this month",
     },
     {
       title: "Total Projects",
       value: dashboardStats?.projects ?? dashboardStats?.totalProjects ?? projects.length,
       icon: FolderKanban,
       color: "blue",
-      trend: "up",
-      trendValue: "+1 this month",
+    },
+    {
+      title: "CV Submissions",
+      value: dashboardStats?.totalCvSubmissions ?? 0,
+      icon: FileUser,
+      color: "green",
+      trendValue: `${dashboardStats?.newCvSubmissions ?? 0} new`,
+    },
+    {
+      title: "Invoices",
+      value: dashboardStats?.totalInvoices ?? 0,
+      icon: Receipt,
+      color: "blue",
+      trendValue: `${dashboardStats?.unpaidInvoices ?? 0} open`,
     },
     {
       title: "Total Blogs",
       value: dashboardStats?.blogs ?? dashboardStats?.totalBlogs ?? blogs.length,
       icon: FileText,
-      color: "purple",
-      trend: "up",
-      trendValue: "+3 this month",
+      color: "cyan",
     },
     {
       title: "New Messages",
@@ -242,8 +254,6 @@ const DashboardPage = () => {
         messages.filter((m) => !m.isRead).length,
       icon: MessageSquare,
       color: "green",
-      trend: "up",
-      trendValue: "+5 this week",
     },
   ];
 
@@ -260,14 +270,14 @@ const DashboardPage = () => {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-slate-100">Dashboard</h1>
-        <p className="text-slate-400">
+        <h1 className="text-2xl font-bold text-ink">Dashboard</h1>
+        <p className="text-ink-muted">
           Welcome back! Here's what's happening with your website.
         </p>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {stats.map((stat, index) => (
           <DashboardCard key={stat.title} {...stat} index={index} />
         ))}
@@ -286,45 +296,45 @@ const DashboardPage = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="glass rounded-xl p-6 border border-slate-700/50"
+          className="bg-surface rounded-xl p-6 border border-border"
         >
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-semibold text-slate-100">
+            <h2 className="text-lg font-semibold text-ink">
               Recent Projects
             </h2>
             <Link
               to="/admin/projects"
-              className="text-sm text-cyan-500 hover:text-cyan-400"
+              className="text-sm text-accent hover:text-accent-hover"
             >
               View All
             </Link>
           </div>
           <div className="space-y-4">
-            {recentProjects.map((project) => (
-              <div
-                key={project._id}
-                className="flex items-center gap-4 p-3 rounded-lg bg-slate-800/50"
-              >
-                <div className="w-12 h-12 rounded-lg bg-slate-700 flex items-center justify-center">
-                  <FolderKanban className="w-6 h-6 text-cyan-500" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-sm font-medium text-slate-100 truncate">
-                    {project.title}
-                  </h3>
-                  <p className="text-xs text-slate-500">{project.category}</p>
-                </div>
-                <span
-                  className={`px-2 py-1 rounded-full text-xs ${
-                    project.status === "completed"
-                      ? "bg-green-500/20 text-green-500"
-                      : "bg-yellow-500/20 text-yellow-500"
-                  }`}
+            {recentProjects.length === 0 ? (
+              <EmptyState
+                title="No projects yet"
+                description="Create a project to see it appear here."
+                className="py-8"
+              />
+            ) : (
+              recentProjects.map((project) => (
+                <div
+                  key={project._id}
+                  className="flex items-center gap-4 p-3 rounded-lg bg-canvas border border-border"
                 >
-                  {project.status}
-                </span>
-              </div>
-            ))}
+                  <div className="w-12 h-12 rounded-lg bg-accent-soft flex items-center justify-center">
+                    <FolderKanban className="w-6 h-6 text-accent" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-sm font-medium text-ink truncate">
+                      {project.title}
+                    </h3>
+                    <p className="text-xs text-ink-muted">{project.category}</p>
+                  </div>
+                  <StatusBadge status={project.status || "pending"} size="sm" />
+                </div>
+              ))
+            )}
           </div>
         </motion.div>
 
@@ -333,47 +343,55 @@ const DashboardPage = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="glass rounded-xl p-6 border border-slate-700/50"
+          className="bg-surface rounded-xl p-6 border border-border"
         >
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-semibold text-slate-100">
+            <h2 className="text-lg font-semibold text-ink">
               Recent Messages
             </h2>
             <Link
               to="/admin/messages"
-              className="text-sm text-cyan-500 hover:text-cyan-400"
+              className="text-sm text-accent hover:text-accent-hover"
             >
               View All
             </Link>
           </div>
           <div className="space-y-4">
-            {recentMessages.map((message) => (
-              <div
-                key={message._id}
-                className="flex items-center gap-4 p-3 rounded-lg bg-slate-800/50"
-              >
+            {recentMessages.length === 0 ? (
+              <EmptyState
+                title="No messages yet"
+                description="Contact form submissions will show up here."
+                className="py-8"
+              />
+            ) : (
+              recentMessages.map((message) => (
                 <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                    message.isRead ? "bg-slate-700" : "bg-cyan-500/20"
-                  }`}
+                  key={message._id}
+                  className="flex items-center gap-4 p-3 rounded-lg bg-canvas border border-border"
                 >
-                  <MessageSquare
-                    className={`w-5 h-5 ${message.isRead ? "text-slate-500" : "text-cyan-500"}`}
-                  />
+                  <div
+                    className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                      message.isRead ? "bg-canvas border border-border" : "bg-accent-soft"
+                    }`}
+                  >
+                    <MessageSquare
+                      className={`w-5 h-5 ${message.isRead ? "text-ink-muted" : "text-accent"}`}
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-sm font-medium text-ink truncate">
+                      {message.name}
+                    </h3>
+                    <p className="text-xs text-ink-muted truncate">
+                      {message.subject}
+                    </p>
+                  </div>
+                  <span className="text-xs text-ink-muted">
+                    {message.createdAt?.split("T")[0] || ""}
+                  </span>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-sm font-medium text-slate-100 truncate">
-                    {message.name}
-                  </h3>
-                  <p className="text-xs text-slate-500 truncate">
-                    {message.subject}
-                  </p>
-                </div>
-                <span className="text-xs text-slate-500">
-                  {message.createdAt?.split("T")[0] || ""}
-                </span>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </motion.div>
       </div>
@@ -383,9 +401,9 @@ const DashboardPage = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
-        className="glass rounded-xl p-6 border border-slate-700/50"
+        className="bg-surface rounded-xl p-6 border border-border"
       >
-        <h2 className="text-lg font-semibold text-slate-100 mb-6">
+        <h2 className="text-lg font-semibold text-ink mb-6">
           Quick Actions
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -406,10 +424,10 @@ const DashboardPage = () => {
             <Link
               key={action.label}
               to={action.link}
-              className="flex flex-col items-center gap-3 p-4 rounded-xl bg-slate-800/50 border border-slate-700/50 hover:border-cyan-500/30 transition-colors"
+              className="flex flex-col items-center gap-3 p-4 rounded-xl bg-canvas border border-border hover:border-accent/40 hover:bg-accent-soft/50 transition-colors"
             >
-              <action.icon className="w-8 h-8 text-cyan-500" />
-              <span className="text-sm text-slate-300">{action.label}</span>
+              <action.icon className="w-8 h-8 text-accent" />
+              <span className="text-sm text-ink">{action.label}</span>
             </Link>
           ))}
         </div>

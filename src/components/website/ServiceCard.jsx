@@ -19,72 +19,102 @@ const iconMap = {
   Code,
 };
 
+const formatPrice = (priceRange) => {
+  if (priceRange == null || priceRange === "") return null;
+  const raw = String(priceRange).trim();
+  if (/^\d+(\.\d+)?$/.test(raw)) {
+    const n = Number(raw);
+    return `From ৳${n.toLocaleString("en-BD")}`;
+  }
+  return raw;
+};
+
 const ServiceCard = ({ service, index = 0 }) => {
   const Icon = iconMap[service.icon] || Globe;
+  const priceLabel = formatPrice(service.priceRange);
+  const order = String(index + 1).padStart(2, "0");
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
+    <motion.article
+      initial={{ opacity: 0, y: 22 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.4, delay: index * 0.1 }}
-      className="group"
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{
+        duration: 0.5,
+        delay: index * 0.08,
+        ease: [0.22, 1, 0.36, 1],
+      }}
+      className="group h-full"
     >
-      <div className="h-full glass rounded-2xl p-6 border border-slate-700/50 hover:border-cyan-500/30 transition-all duration-300">
-        {/* Icon */}
-        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-cyan-500/20 to-blue-600/20 flex items-center justify-center mb-6 group-hover:from-cyan-500/30 group-hover:to-blue-600/30 transition-all">
-          <Icon className="w-7 h-7 text-cyan-500" />
+      <Link
+        to={`/services/${service.slug}`}
+        className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-surface p-6 md:p-7 transition-all duration-300 ease-smooth hover:border-accent/35 hover:shadow-lift"
+      >
+        <div
+          className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/50 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+          aria-hidden="true"
+        />
+        <div
+          className="pointer-events-none absolute -right-8 -top-8 h-28 w-28 rounded-full bg-accent/5 blur-2xl opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+          aria-hidden="true"
+        />
+
+        <div className="relative mb-6 flex items-start justify-between gap-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent-soft text-accent ring-1 ring-accent/10 transition-transform duration-300 ease-smooth group-hover:scale-105">
+            <Icon className="h-5 w-5" strokeWidth={1.75} />
+          </div>
+          <span className="font-display text-sm font-medium tabular-nums text-ink-subtle/80">
+            {order}
+          </span>
         </div>
 
-        {/* Content */}
-        <h3 className="text-xl font-semibold text-slate-100 mb-3 group-hover:text-cyan-400 transition-colors">
+        <h3 className="relative font-display text-xl font-semibold tracking-tight text-ink transition-colors duration-300 group-hover:text-accent">
           {service.title}
         </h3>
-        <p className="text-slate-400 mb-4 line-clamp-2">
+
+        <p className="relative mt-3 mb-5 line-clamp-3 flex-1 text-[15px] leading-relaxed text-ink-muted">
           {service.shortDescription}
         </p>
 
-        {/* Features */}
-        {service.features && (
-          <ul className="space-y-2 mb-6">
+        {service.features?.length > 0 && (
+          <ul className="relative mb-6 space-y-2.5">
             {service.features.slice(0, 3).map((feature, idx) => (
               <li
                 key={idx}
-                className="flex items-center gap-2 text-sm text-slate-500"
+                className="flex items-start gap-2.5 text-sm text-ink-subtle"
               >
-                <span className="w-1.5 h-1.5 rounded-full bg-cyan-500" />
-                {feature}
+                <span
+                  className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent"
+                  aria-hidden="true"
+                />
+                <span className="leading-snug">{feature}</span>
               </li>
             ))}
           </ul>
         )}
 
-        {/* Price & Duration */}
-        <div className="flex items-center justify-between pt-4 border-t border-slate-700/50 mb-4">
-          <div>
-            <p className="text-xs text-slate-500">Starting from</p>
-            <p className="text-lg font-semibold text-cyan-500">
-              {service.priceRange}
-            </p>
+        <div className="relative mt-auto flex items-end justify-between gap-4 border-t border-border/80 pt-5">
+          <div className="min-w-0">
+            {priceLabel ? (
+              <>
+                <p className="text-[11px] font-medium uppercase tracking-wider text-ink-subtle">
+                  Pricing
+                </p>
+                <p className="mt-1 truncate text-sm font-semibold text-ink">
+                  {priceLabel}
+                </p>
+              </>
+            ) : (
+              <p className="text-sm text-ink-subtle">Scoped to your needs</p>
+            )}
           </div>
-          <div className="text-right">
-            <p className="text-xs text-slate-500">Duration</p>
-            <p className="text-sm text-slate-300">
-              {service.duration || "Negotiable"}
-            </p>
-          </div>
+          <span className="inline-flex shrink-0 items-center gap-1.5 text-sm font-medium text-accent">
+            Learn more
+            <ArrowRight className="h-4 w-4 transition-transform duration-300 ease-smooth group-hover:translate-x-1" />
+          </span>
         </div>
-
-        {/* Link */}
-        <Link
-          to={`/services/${service.slug}`}
-          className="inline-flex items-center gap-2 text-sm font-medium text-cyan-500 hover:text-cyan-400 transition-colors"
-        >
-          Learn More
-          <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-        </Link>
-      </div>
-    </motion.div>
+      </Link>
+    </motion.article>
   );
 };
 

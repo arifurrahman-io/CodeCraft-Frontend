@@ -5,6 +5,7 @@ import { toast } from "sonner";
 
 import Button from "@/components/common/Button";
 import Input from "@/components/common/Input";
+import Loader from "@/components/common/Loader";
 import TextArea from "@/components/common/TextArea";
 import ImageUploader from "@/components/admin/ImageUploader";
 
@@ -277,8 +278,8 @@ const ProjectFormPage = () => {
   if (isLoading) {
     return (
       <div className="mx-auto max-w-4xl">
-        <div className="glass rounded-xl p-6 border border-slate-700/50">
-          <p className="text-slate-300">Loading project...</p>
+        <div className="bg-surface rounded-xl p-12 border border-border">
+          <Loader text="Loading project..." />
         </div>
       </div>
     );
@@ -290,16 +291,16 @@ const ProjectFormPage = () => {
         <button
           type="button"
           onClick={() => navigate("/admin/projects")}
-          className="p-2 rounded-lg text-slate-400 hover:text-slate-100 hover:bg-slate-800"
+          className="p-2 rounded-lg text-ink-muted hover:text-ink hover:bg-ink/5"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
 
         <div>
-          <h1 className="text-2xl font-bold text-slate-100">
+          <h1 className="text-2xl font-bold text-ink">
             {isEditing ? "Edit Project" : "Create Project"}
           </h1>
-          <p className="text-slate-400">
+          <p className="text-ink-muted">
             {isEditing
               ? "Update project details"
               : "Add a new project to your portfolio"}
@@ -309,8 +310,8 @@ const ProjectFormPage = () => {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Basic */}
-        <div className="glass rounded-xl p-6 border border-slate-700/50 space-y-6">
-          <h2 className="text-lg font-semibold text-slate-100">
+        <div className="bg-surface rounded-xl p-6 border border-border space-y-6">
+          <h2 className="text-lg font-semibold text-ink">
             Basic Information
           </h2>
 
@@ -340,7 +341,7 @@ const ProjectFormPage = () => {
           />
 
           <div>
-            <label className="block text-sm text-slate-300 mb-2">
+            <label className="block text-sm text-ink mb-2">
               Category
             </label>
 
@@ -348,7 +349,7 @@ const ProjectFormPage = () => {
               name="category"
               value={formData.category}
               onChange={handleChange}
-              className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-slate-100"
+              className="w-full px-4 py-3 bg-surface border border-border rounded-lg text-ink focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent"
             >
               {categoryOptions.map((item) => (
                 <option key={item}>{item}</option>
@@ -372,7 +373,7 @@ const ProjectFormPage = () => {
             placeholder={`Describe the project in multiple paragraphs.\n\nUse a blank line between paragraphs for better public page formatting.`}
             rows={10}
           />
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-ink-muted">
             Multiple description paragraphs are supported. Add a blank line
             between paragraphs for clean spacing on the public project page.
           </p>
@@ -397,8 +398,8 @@ const ProjectFormPage = () => {
         </div>
 
         {/* Features */}
-        <div className="glass rounded-xl p-6 border border-slate-700/50">
-          <h2 className="text-lg font-semibold text-slate-100 mb-5">
+        <div className="bg-surface rounded-xl p-6 border border-border">
+          <h2 className="text-lg font-semibold text-ink mb-5">
             Features
           </h2>
 
@@ -417,13 +418,13 @@ const ProjectFormPage = () => {
             {formData.features.map((item, i) => (
               <span
                 key={i}
-                className="px-3 py-1 rounded-lg bg-slate-800 text-slate-300"
+                className="px-3 py-1 rounded-lg bg-canvas text-ink"
               >
                 {item}
                 <button
                   type="button"
                   onClick={() => removeFeature(i)}
-                  className="ml-2 text-red-400"
+                  className="ml-2 text-red-600"
                 >
                   ×
                 </button>
@@ -433,8 +434,8 @@ const ProjectFormPage = () => {
         </div>
 
         {/* Technologies */}
-        <div className="glass rounded-xl p-6 border border-slate-700/50">
-          <h2 className="text-lg font-semibold text-slate-100 mb-5">
+        <div className="bg-surface rounded-xl p-6 border border-border">
+          <h2 className="text-lg font-semibold text-ink mb-5">
             Technologies
           </h2>
 
@@ -453,13 +454,13 @@ const ProjectFormPage = () => {
             {formData.technologies.map((item, i) => (
               <span
                 key={i}
-                className="px-3 py-1 rounded-lg bg-slate-800 text-slate-300"
+                className="px-3 py-1 rounded-lg bg-canvas text-ink"
               >
                 {item}
                 <button
                   type="button"
                   onClick={() => removeTech(i)}
-                  className="ml-2 text-red-400"
+                  className="ml-2 text-red-600"
                 >
                   ×
                 </button>
@@ -469,8 +470,8 @@ const ProjectFormPage = () => {
         </div>
 
         {/* Links */}
-        <div className="glass rounded-xl p-6 border border-slate-700/50 space-y-5">
-          <h2 className="text-lg font-semibold text-slate-100">Links & Date</h2>
+        <div className="bg-surface rounded-xl p-6 border border-border space-y-5">
+          <h2 className="text-lg font-semibold text-ink">Links & Date</h2>
 
           <Input
             label="Live URL"
@@ -496,8 +497,8 @@ const ProjectFormPage = () => {
         </div>
 
         {/* Images */}
-        <div className="glass rounded-xl p-6 border border-slate-700/50 space-y-5">
-          <h2 className="text-lg font-semibold text-slate-100">Cover Image</h2>
+        <div className="bg-surface rounded-xl p-6 border border-border space-y-5">
+          <h2 className="text-lg font-semibold text-ink">Cover Image</h2>
 
           <ImageUploader
             label="Cover Image"
@@ -511,7 +512,7 @@ const ProjectFormPage = () => {
           />
 
           <div className="mt-5">
-            <h3 className="text-slate-300 mb-3">Gallery Images (URLs)</h3>
+            <h3 className="text-ink mb-3">Gallery Images (URLs)</h3>
 
             <div className="flex gap-3 mb-4">
               <Input
@@ -528,14 +529,14 @@ const ProjectFormPage = () => {
               {formData.images.map((img, i) => (
                 <div
                   key={i}
-                  className="flex items-center justify-between rounded-lg bg-slate-800 px-3 py-2"
+                  className="flex items-center justify-between rounded-lg bg-canvas px-3 py-2"
                 >
-                  <span className="text-slate-300 text-sm truncate">{img}</span>
+                  <span className="text-ink text-sm truncate">{img}</span>
 
                   <button
                     type="button"
                     onClick={() => removeGallery(i)}
-                    className="text-red-400"
+                    className="text-red-600"
                   >
                     ×
                   </button>
@@ -546,8 +547,8 @@ const ProjectFormPage = () => {
         </div>
 
         {/* SEO */}
-        <div className="glass rounded-xl p-6 border border-slate-700/50 space-y-5">
-          <h2 className="text-lg font-semibold text-slate-100">SEO</h2>
+        <div className="bg-surface rounded-xl p-6 border border-border space-y-5">
+          <h2 className="text-lg font-semibold text-ink">SEO</h2>
 
           <Input
             label="SEO Title"
@@ -566,8 +567,8 @@ const ProjectFormPage = () => {
         </div>
 
         {/* Settings */}
-        <div className="glass rounded-xl p-6 border border-slate-700/50 space-y-5">
-          <h2 className="text-lg font-semibold text-slate-100">Settings</h2>
+        <div className="bg-surface rounded-xl p-6 border border-border space-y-5">
+          <h2 className="text-lg font-semibold text-ink">Settings</h2>
 
           <label className="flex items-center gap-3">
             <input
@@ -576,7 +577,7 @@ const ProjectFormPage = () => {
               checked={formData.isFeatured}
               onChange={handleChange}
             />
-            <span className="text-slate-300">Featured Project</span>
+            <span className="text-ink">Featured Project</span>
           </label>
 
           <label className="flex items-center gap-3">
@@ -586,7 +587,7 @@ const ProjectFormPage = () => {
               checked={formData.isActive}
               onChange={handleChange}
             />
-            <span className="text-slate-300">Active</span>
+            <span className="text-ink">Active</span>
           </label>
         </div>
 

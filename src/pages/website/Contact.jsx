@@ -21,6 +21,7 @@ import {
 import Button from "@/components/common/Button";
 import Input from "@/components/common/Input";
 import TextArea from "@/components/common/TextArea";
+import PageHero from "@/components/website/PageHero";
 import { COMPANY } from "@/utils/constants";
 import { sendMessage } from "@/services/contactService";
 import { getSettings } from "@/services/settingsService";
@@ -68,6 +69,9 @@ const budgetRanges = [
   "৳3,00,000+",
   "Not sure yet",
 ];
+
+const selectClass =
+  "w-full px-4 py-2.5 bg-surface border border-border rounded-lg text-ink focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-colors";
 
 const ContactPage = () => {
   const [formData, setFormData] = useState(initialForm);
@@ -201,84 +205,63 @@ const ContactPage = () => {
   );
 
   return (
-    <div className="min-h-screen">
-      <section className="pt-32 pb-16 bg-slate-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center max-w-3xl mx-auto"
-          >
-            <h1 className="text-4xl md:text-5xl font-bold text-slate-100 mb-6">
-              Get in <span className="text-cyan-500">Touch</span>
-            </h1>
+    <div>
+      <PageHero
+        subtitle="Contact"
+        title="Get in touch"
+        description="Have a project idea? Need a website, app, or custom software? Let's discuss how we can help."
+      />
 
-            <p className="text-lg text-slate-400 leading-8">
-              Have a project idea? Need a website, app, or custom software?
-              Let&apos;s discuss how we can help.
-            </p>
-          </motion.div>
-        </div>
-      </section>
-
-      <section className="py-16 bg-slate-950">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <section className="pb-16 md:pb-20">
+        <div className="container-custom">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {contactInfo.map((info, index) => (
               <motion.div
                 key={info.title}
-                initial={{ opacity: 0, y: 18 }}
+                initial={{ opacity: 0, y: 12 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: index * 0.08 }}
-                className="glass rounded-xl p-6 border border-slate-700/50"
+                transition={{ delay: index * 0.06 }}
+                className="border-t border-border pt-5"
               >
-                <div className="w-12 h-12 rounded-xl bg-cyan-500/15 flex items-center justify-center mb-4">
-                  <info.icon className="w-6 h-6 text-cyan-500" />
-                </div>
-
-                <h3 className="text-lg font-semibold text-slate-100 mb-1">
+                <info.icon className="w-5 h-5 text-accent mb-3" />
+                <h3 className="text-sm font-semibold text-ink mb-1">
                   {info.title}
                 </h3>
-
-                <p className="text-cyan-400 mb-1 break-words">
+                <p className="text-accent break-words mb-1">
                   {loadingSettings ? "Loading..." : info.value}
                 </p>
-
-                <p className="text-sm text-slate-500">{info.description}</p>
+                <p className="text-sm text-ink-subtle">{info.description}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="py-16 md:py-20 bg-slate-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-10">
+      <section className="section-padding bg-surface border-y border-border">
+        <div className="container-custom">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16">
             <motion.div
-              initial={{ opacity: 0, x: -18 }}
-              whileInView={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="glass rounded-2xl p-8 border border-slate-700/50"
+              className="card p-6 md:p-8"
             >
-              <h2 className="text-2xl font-bold text-slate-100 mb-6">
-                Send us a Message
+              <h2 className="text-2xl font-bold text-ink tracking-tight mb-6">
+                Send us a message
               </h2>
 
               {isSubmitted ? (
                 <div className="text-center py-10">
-                  <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-4">
-                    <CheckCircle2 className="w-8 h-8 text-green-500" />
+                  <div className="w-14 h-14 rounded-xl bg-accent-soft flex items-center justify-center mx-auto mb-4">
+                    <CheckCircle2 className="w-7 h-7 text-accent" />
                   </div>
-
-                  <h3 className="text-xl font-semibold text-slate-100 mb-2">
-                    Message Sent Successfully
+                  <h3 className="text-xl font-semibold text-ink mb-2">
+                    Message sent successfully
                   </h3>
-
-                  <p className="text-slate-400 mb-6">
-                    Thank you for contacting us. We’ll respond shortly.
+                  <p className="text-ink-muted mb-6">
+                    Thank you for contacting us. We&apos;ll respond shortly.
                   </p>
-
                   <Button
                     variant="outline"
                     onClick={() => setIsSubmitted(false)}
@@ -297,7 +280,6 @@ const ContactPage = () => {
                       placeholder="John Doe"
                       required
                     />
-
                     <Input
                       label="Email Address"
                       type="email"
@@ -317,7 +299,6 @@ const ContactPage = () => {
                       onChange={handleChange}
                       placeholder="+8801XXXXXXXXX"
                     />
-
                     <Input
                       label="Company"
                       name="company"
@@ -329,14 +310,14 @@ const ContactPage = () => {
 
                   <div className="grid md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-slate-300 mb-2">
+                      <label className="block text-sm font-medium text-ink mb-2">
                         Project Type
                       </label>
                       <select
                         name="projectType"
                         value={formData.projectType}
                         onChange={handleChange}
-                        className="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                        className={selectClass}
                       >
                         <option value="">Select project type</option>
                         {projectTypes.map((type) => (
@@ -346,16 +327,15 @@ const ContactPage = () => {
                         ))}
                       </select>
                     </div>
-
                     <div>
-                      <label className="block text-sm font-medium text-slate-300 mb-2">
+                      <label className="block text-sm font-medium text-ink mb-2">
                         Budget Range
                       </label>
                       <select
                         name="budgetRange"
                         value={formData.budgetRange}
                         onChange={handleChange}
-                        className="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                        className={selectClass}
                       >
                         <option value="">Select budget range</option>
                         {budgetRanges.map((range) => (
@@ -391,60 +371,55 @@ const ContactPage = () => {
             </motion.div>
 
             <motion.div
-              initial={{ opacity: 0, x: 18 }}
-              whileInView={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="space-y-6"
+              className="space-y-10"
             >
-              <div className="glass rounded-2xl p-8 border border-slate-700/50 h-80 flex items-center justify-center">
-                <div className="text-center">
-                  <MapPin className="w-12 h-12 text-cyan-500 mx-auto mb-4" />
-                  <p className="text-slate-300 font-medium mb-1">
-                    {company.name}
+              <div className="border-t border-border pt-6">
+                <MapPin className="w-6 h-6 text-accent mb-4" />
+                <p className="font-medium text-ink mb-1">{company.name}</p>
+                <p className="text-ink-muted">{company.address}</p>
+              </div>
+
+              {socialLinks.length > 0 && (
+                <div className="border-t border-border pt-6">
+                  <h3 className="text-lg font-semibold text-ink mb-2">
+                    Follow us
+                  </h3>
+                  <p className="text-ink-muted mb-5">
+                    Stay connected for updates, new projects, and insights.
                   </p>
-                  <p className="text-slate-500">{company.address}</p>
+                  <div className="flex gap-2">
+                    {socialLinks.map((item) => (
+                      <a
+                        key={item.label}
+                        href={item.href}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="w-10 h-10 rounded-lg border border-border bg-surface flex items-center justify-center text-ink-muted hover:text-accent hover:border-accent/40 transition-colors"
+                        aria-label={item.label}
+                      >
+                        <item.icon />
+                      </a>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
-              <div className="glass rounded-2xl p-8 border border-slate-700/50">
-                <h3 className="text-lg font-semibold text-slate-100 mb-4">
-                  Follow Us
+              <div className="border-t border-border pt-6">
+                <h3 className="text-lg font-semibold text-ink mb-4">
+                  Quick questions?
                 </h3>
-
-                <p className="text-slate-400 mb-6">
-                  Stay connected for updates, new projects, and insights.
-                </p>
-
-                <div className="flex gap-3">
-                  {socialLinks.map((item) => (
-                    <a
-                      key={item.label}
-                      href={item.href}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="w-11 h-11 rounded-xl bg-slate-800 flex items-center justify-center text-slate-400 hover:text-cyan-400 hover:bg-slate-700 transition-all"
-                      aria-label={item.label}
-                    >
-                      <item.icon />
-                    </a>
-                  ))}
-                </div>
-              </div>
-
-              <div className="glass rounded-2xl p-8 border border-slate-700/50">
-                <h3 className="text-lg font-semibold text-slate-100 mb-4">
-                  Quick Questions?
-                </h3>
-
                 <div className="space-y-4">
                   {[
                     "What is your project delivery timeline?",
                     "Do you provide support after launch?",
                     "Can you build custom web apps?",
-                  ].map((question, index) => (
-                    <div key={index} className="flex items-start gap-3">
-                      <MessageSquare className="w-5 h-5 text-cyan-500 mt-0.5" />
-                      <span className="text-slate-400">{question}</span>
+                  ].map((question) => (
+                    <div key={question} className="flex items-start gap-3">
+                      <MessageSquare className="w-5 h-5 text-accent mt-0.5 shrink-0" />
+                      <span className="text-ink-muted">{question}</span>
                     </div>
                   ))}
                 </div>

@@ -11,11 +11,11 @@ const DashboardCard = ({
   index = 0,
 }) => {
   const colorClasses = {
-    cyan: "from-cyan-500/20 to-cyan-600/10 text-cyan-500",
-    blue: "from-blue-500/20 to-blue-600/10 text-blue-500",
-    purple: "from-purple-500/20 to-purple-600/10 text-purple-500",
-    green: "from-green-500/20 to-green-600/10 text-green-500",
-    orange: "from-orange-500/20 to-orange-600/10 text-orange-500",
+    cyan: "bg-accent-soft text-accent",
+    blue: "bg-sky-50 text-sky-600",
+    purple: "bg-violet-50 text-violet-600",
+    green: "bg-emerald-50 text-emerald-600",
+    orange: "bg-amber-50 text-amber-600",
   };
 
   const getTrendIcon = () => {
@@ -27,9 +27,9 @@ const DashboardCard = ({
 
   const getTrendColor = () => {
     if (!trend) return "";
-    if (trend === "up") return "text-green-500";
-    if (trend === "down") return "text-red-500";
-    return "text-slate-500";
+    if (trend === "up") return "text-emerald-600";
+    if (trend === "down") return "text-red-600";
+    return "text-ink-subtle";
   };
 
   return (
@@ -37,12 +37,12 @@ const DashboardCard = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: index * 0.1 }}
-      className="glass rounded-xl p-6 border border-slate-700/50"
+      className="bg-surface rounded-xl p-6 border border-border"
     >
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-sm text-slate-500 mb-1">{title}</p>
-          <p className="text-3xl font-bold text-slate-100">{value}</p>
+          <p className="text-sm text-ink-muted mb-1">{title}</p>
+          <p className="font-display text-3xl font-bold text-ink tracking-tight">{value}</p>
           {trendValue && (
             <div
               className={`flex items-center gap-1 mt-2 text-sm ${getTrendColor()}`}
@@ -53,7 +53,7 @@ const DashboardCard = ({
           )}
         </div>
         <div
-          className={`w-12 h-12 rounded-xl bg-gradient-to-br ${colorClasses[color]} flex items-center justify-center`}
+          className={`w-12 h-12 rounded-xl ${colorClasses[color] || colorClasses.cyan} flex items-center justify-center`}
         >
           {Icon && <Icon className="w-6 h-6" />}
         </div>

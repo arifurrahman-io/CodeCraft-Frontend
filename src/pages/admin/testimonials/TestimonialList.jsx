@@ -5,6 +5,7 @@ import { toast } from "sonner";
 
 import Button from "@/components/common/Button";
 import Input from "@/components/common/Input";
+import Loader from "@/components/common/Loader";
 import DataTable from "@/components/admin/DataTable";
 import StatusBadge from "@/components/admin/StatusBadge";
 import {
@@ -13,7 +14,7 @@ import {
 } from "@/services/testimonialService";
 
 const fallbackPhoto =
-  "https://ui-avatars.com/api/?name=Client&background=0f172a&color=06b6d4";
+  "https://ui-avatars.com/api/?name=Client&background=0a1628&color=0d9488";
 
 const getTestimonialsFromResponse = (response) => {
   if (Array.isArray(response)) return response;
@@ -77,12 +78,6 @@ const TestimonialListPage = () => {
   }, [fetchTestimonials]);
 
   const handleDelete = async (id) => {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this testimonial?",
-    );
-
-    if (!confirmed) return;
-
     try {
       await deleteTestimonial(id);
       setTestimonials((prev) =>
@@ -93,6 +88,7 @@ const TestimonialListPage = () => {
       toast.error(
         error?.response?.data?.message || "Failed to delete testimonial",
       );
+      throw error;
     }
   };
 
@@ -129,15 +125,15 @@ const TestimonialListPage = () => {
           <img
             src={row.photo}
             alt={row.clientName}
-            className="w-12 h-12 rounded-full object-cover border border-slate-700"
+            className="w-12 h-12 rounded-full object-cover border border-border"
             onError={(e) => {
               e.currentTarget.src = fallbackPhoto;
             }}
           />
 
           <div>
-            <h3 className="font-medium text-slate-100">{row.clientName}</h3>
-            <p className="text-sm text-slate-500">
+            <h3 className="font-medium text-ink">{row.clientName}</h3>
+            <p className="text-sm text-ink-muted">
               {row.company || "No company"}
             </p>
           </div>
@@ -148,7 +144,7 @@ const TestimonialListPage = () => {
       header: "Designation",
       accessor: "designation",
       render: (row) => (
-        <span className="text-slate-300">
+        <span className="text-ink">
           {row.designation || "Not specified"}
         </span>
       ),
@@ -161,7 +157,7 @@ const TestimonialListPage = () => {
           {[...Array(5)].map((_, i) => (
             <span
               key={i}
-              className={i < row.rating ? "text-yellow-500" : "text-slate-600"}
+              className={i < row.rating ? "text-yellow-500" : "text-ink-subtle"}
             >
               ★
             </span>
@@ -172,7 +168,7 @@ const TestimonialListPage = () => {
     {
       header: "Order",
       accessor: "order",
-      render: (row) => <span className="text-slate-300">{row.order}</span>,
+      render: (row) => <span className="text-ink">{row.order}</span>,
     },
     {
       header: "Status",
@@ -187,8 +183,8 @@ const TestimonialListPage = () => {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-100">Testimonials</h1>
-          <p className="text-slate-400">Manage client testimonials</p>
+          <h1 className="text-2xl font-bold text-ink">Testimonials</h1>
+          <p className="text-ink-muted">Manage client testimonials</p>
         </div>
 
         <Link to="/admin/testimonials/create">
@@ -209,7 +205,7 @@ const TestimonialListPage = () => {
         <select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
-          className="px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+          className="px-4 py-2.5 bg-surface border border-border rounded-lg text-ink focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent"
         >
           <option value="all">All Status</option>
           <option value="active">Active</option>
@@ -218,8 +214,8 @@ const TestimonialListPage = () => {
       </div>
 
       {isLoading ? (
-        <div className="glass rounded-xl p-6 border border-slate-700/50">
-          <p className="text-slate-300">Loading testimonials...</p>
+        <div className="bg-surface rounded-xl p-12 border border-border">
+          <Loader text="Loading testimonials..." />
         </div>
       ) : (
         <DataTable
@@ -228,6 +224,8 @@ const TestimonialListPage = () => {
           basePath="/admin/testimonials"
           viewPath={() => "/"}
           onDelete={handleDelete}
+          deleteTitle="Delete testimonial"
+          deleteMessage="Are you sure you want to delete this testimonial? This action cannot be undone."
           emptyMessage="No testimonials"
         />
       )}

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Award,
   Users,
@@ -13,12 +13,15 @@ import {
 import { FaGithub, FaLinkedinIn } from "react-icons/fa";
 
 import CTASection from "@/components/website/CTASection";
+import PageHero from "@/components/website/PageHero";
 import SectionHeader from "@/components/common/SectionHeader";
+import Loader from "@/components/common/Loader";
+import EmptyState from "@/components/common/EmptyState";
 import { getAllTeam } from "@/services/teamService";
 import { useWebsiteStats } from "@/hooks/useWebsiteStats";
 
 const fallbackPhoto =
-  "https://ui-avatars.com/api/?name=Team+Member&background=0f172a&color=06b6d4&size=400";
+  "https://ui-avatars.com/api/?name=Team+Member&background=f0fdfa&color=0d9488&size=400";
 
 const getTeamFromResponse = (response) => {
   if (Array.isArray(response)) return response;
@@ -46,130 +49,140 @@ const normalizeMember = (member = {}) => ({
   isActive: typeof member.isActive === "boolean" ? member.isActive : true,
 });
 
-const TeamMemberCard = ({ member, isExpanded, onToggle }) => {
-  const hasDetails = member.bio || member.skills.length > 0;
-  const visibleSkills = member.skills.slice(0, 6);
+const SocialLink = ({ href, label, children }) => (
+  <a
+    href={href}
+    target="_blank"
+    rel="noreferrer"
+    className="flex h-9 w-9 items-center justify-center rounded-xl border border-border/80 bg-canvas text-ink-muted transition-all duration-200 hover:border-accent/35 hover:bg-accent-soft hover:text-accent"
+    aria-label={label}
+  >
+    {children}
+  </a>
+);
+
+const TeamMemberCard = ({ member, isExpanded, onToggle, index = 0 }) => {
+  const hasDetails = Boolean(member.bio) || member.skills.length > 0;
+  const visibleSkills = member.skills.slice(0, 8);
 
   return (
     <motion.article
-      layout
-      className="overflow-hidden rounded-3xl border border-slate-800/80 bg-slate-900/80 shadow-xl shadow-slate-950/40"
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{
+        duration: 0.45,
+        delay: index * 0.07,
+        ease: [0.22, 1, 0.36, 1],
+      }}
+      className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-surface transition-all duration-300 hover:-translate-y-0.5 hover:border-accent/25 hover:shadow-lift"
     >
-      <div className="relative aspect-[4/3] overflow-hidden bg-slate-800">
+      <div className="relative aspect-[4/5] overflow-hidden bg-canvas">
         <img
           src={member.photo}
           alt={member.name}
-          className="h-full w-full object-cover"
+          className="h-full w-full object-cover object-top transition-transform duration-700 ease-smooth group-hover:scale-[1.04]"
           onError={(e) => {
             e.currentTarget.src = fallbackPhoto;
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/10 to-transparent" />
-
-        <div className="absolute left-5 right-5 bottom-5">
-          <span className="inline-flex rounded-full border border-cyan-400/30 bg-cyan-400/10 px-3 py-1 text-xs font-medium text-cyan-300 backdrop-blur">
+        <div
+          className="absolute inset-0 bg-gradient-to-t from-ink/75 via-ink/15 to-transparent"
+          aria-hidden="true"
+        />
+        <div className="absolute inset-x-0 bottom-0 p-5">
+          <p className="font-display text-xl font-semibold tracking-tight text-white">
+            {member.name}
+          </p>
+          <p className="mt-1 text-sm font-medium text-accent">
             {member.designation}
-          </span>
+          </p>
         </div>
       </div>
 
-      <div className="p-5">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h3 className="text-xl font-semibold text-slate-100">
-              {member.name}
-            </h3>
-            <p className="mt-1 text-sm text-slate-400">
-              {member.designation}
-            </p>
-          </div>
-
-          <div className="flex shrink-0 items-center gap-2 text-slate-400">
+      <div className="flex flex-1 flex-col p-5">
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-sm text-ink-muted">Connect</p>
+          <div className="flex shrink-0 items-center gap-2">
             {member.linkedin && (
-              <a
+              <SocialLink
                 href={member.linkedin}
-                target="_blank"
-                rel="noreferrer"
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-800 transition hover:bg-cyan-500 hover:text-slate-950"
-                aria-label={`${member.name} LinkedIn`}
+                label={`${member.name} LinkedIn`}
               >
-                <FaLinkedinIn />
-              </a>
+                <FaLinkedinIn className="h-3.5 w-3.5" />
+              </SocialLink>
             )}
-
             {member.github && (
-              <a
-                href={member.github}
-                target="_blank"
-                rel="noreferrer"
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-800 transition hover:bg-cyan-500 hover:text-slate-950"
-                aria-label={`${member.name} GitHub`}
-              >
-                <FaGithub />
-              </a>
+              <SocialLink href={member.github} label={`${member.name} GitHub`}>
+                <FaGithub className="h-3.5 w-3.5" />
+              </SocialLink>
             )}
-
             {member.website && (
-              <a
+              <SocialLink
                 href={member.website}
-                target="_blank"
-                rel="noreferrer"
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-800 transition hover:bg-cyan-500 hover:text-slate-950"
-                aria-label={`${member.name} website`}
+                label={`${member.name} website`}
               >
-                <Globe2 className="h-4 w-4" />
-              </a>
+                <Globe2 className="h-3.5 w-3.5" />
+              </SocialLink>
+            )}
+            {!member.linkedin && !member.github && !member.website && (
+              <span className="text-xs text-ink-subtle">—</span>
             )}
           </div>
         </div>
 
         {hasDetails && (
-          <>
+          <div className="mt-4 border-t border-border/80 pt-4">
             <button
               type="button"
               onClick={onToggle}
-              className="mt-5 flex w-full items-center justify-between rounded-2xl border border-slate-800 bg-slate-950/70 px-4 py-3 text-left text-sm font-medium text-slate-200 transition hover:border-cyan-500/40 hover:text-cyan-300"
+              className="flex w-full items-center justify-between gap-3 rounded-xl px-1 py-1 text-left text-sm font-medium text-ink transition-colors hover:text-accent"
               aria-expanded={isExpanded}
             >
-              <span>{isExpanded ? "Hide details" : "View profile"}</span>
-              <ChevronDown
-                className={`h-4 w-4 transition-transform ${
-                  isExpanded ? "rotate-180" : ""
+              <span>{isExpanded ? "Hide profile" : "View profile"}</span>
+              <span
+                className={`flex h-8 w-8 items-center justify-center rounded-lg bg-canvas text-ink-muted transition-all duration-300 ${
+                  isExpanded ? "rotate-180 bg-accent-soft text-accent" : ""
                 }`}
-              />
+              >
+                <ChevronDown className="h-4 w-4" />
+              </span>
             </button>
 
-            <motion.div
-              initial={false}
-              animate={{
-                height: isExpanded ? "auto" : 0,
-                opacity: isExpanded ? 1 : 0,
-              }}
-              transition={{ duration: 0.25, ease: "easeOut" }}
-              className="overflow-hidden"
-            >
-              <div className="pt-5">
-                {member.bio && (
-                  <p className="text-sm leading-7 text-slate-400">
-                    {member.bio}
-                  </p>
-                )}
+            <AnimatePresence initial={false}>
+              {isExpanded && (
+                <motion.div
+                  key="details"
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+                  className="overflow-hidden"
+                >
+                  <div className="pt-3 pb-1">
+                    {member.bio && (
+                      <p className="text-sm leading-relaxed text-ink-muted">
+                        {member.bio}
+                      </p>
+                    )}
 
-                {visibleSkills.length > 0 && (
-                  <div className="mt-5 flex flex-wrap gap-2">
-                    {visibleSkills.map((skill, idx) => (
-                      <span
-                        key={idx}
-                        className="rounded-full bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-300 ring-1 ring-slate-700/80"
-                      >
-                        {skill}
-                      </span>
-                    ))}
+                    {visibleSkills.length > 0 && (
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        {visibleSkills.map((skill, idx) => (
+                          <span
+                            key={idx}
+                            className="rounded-lg border border-accent/15 bg-accent-soft/70 px-2.5 py-1 text-xs font-medium text-accent"
+                          >
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-            </motion.div>
-          </>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         )}
       </div>
     </motion.article>
@@ -273,92 +286,106 @@ const AboutPage = () => {
   };
 
   return (
-    <div className="min-h-screen">
-      {/* Hero */}
-      <section className="pt-28 pb-16 bg-slate-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto">
-            <h1 className="text-4xl md:text-6xl font-bold text-slate-100 mb-6">
-              About <span className="text-cyan-500">CodeCraft.BD</span>
-            </h1>
+    <div>
+      <PageHero
+        subtitle="About"
+        title="CodeCraft.BD"
+        description="We are a modern software agency building professional websites, mobile apps, SaaS platforms, and business automation solutions."
+      />
 
-            <p className="text-lg text-slate-400 leading-8">
-              We are a modern software agency building professional websites,
-              mobile apps, SaaS platforms, and business automation solutions.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Stats */}
-      <section className="py-16 bg-slate-950">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+      <section className="pb-16 md:pb-20">
+        <div className="container-custom">
+          <div className="grid grid-cols-2 gap-6 md:grid-cols-4 md:gap-8">
             {stats.map((stat) => (
               <div
                 key={stat.label}
-                className="glass rounded-xl p-6 border border-slate-700/50 text-center"
+                className="rounded-2xl border border-border bg-surface/80 px-4 py-5 transition-colors hover:border-accent/25"
               >
-                <stat.icon className="w-8 h-8 text-cyan-500 mx-auto mb-4" />
-                <p className="text-3xl font-bold text-slate-100 mb-2">
+                <stat.icon className="mb-3 h-5 w-5 text-accent" />
+                <p className="font-display text-3xl font-bold tracking-tight text-ink">
                   {stat.number}
                 </p>
-                <p className="text-sm text-slate-400">{stat.label}</p>
+                <p className="mt-1 text-sm text-ink-muted">{stat.label}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Values */}
-      <section className="py-16 bg-slate-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="section-padding relative overflow-hidden border-y border-border bg-surface">
+        <div
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_0%_0%,rgba(13,148,136,0.06),transparent_45%)]"
+          aria-hidden="true"
+        />
+        <div className="relative container-custom">
           <SectionHeader
+            alignment="left"
             subtitle="Our Values"
-            title="What Drives Us"
+            title="What drives us"
             description="Principles behind every project"
             className="mb-12"
           />
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {values.map((value) => (
-              <div
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {values.map((value, index) => (
+              <motion.div
                 key={value.title}
-                className="glass rounded-xl p-6 border border-slate-700/50"
+                initial={{ opacity: 0, y: 14 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.06 }}
+                className="rounded-2xl border border-border bg-canvas/50 p-5 transition-all duration-300 hover:border-accent/25 hover:bg-surface hover:shadow-soft"
               >
-                <value.icon className="w-10 h-10 text-cyan-500 mb-4" />
-                <h3 className="text-lg font-semibold text-slate-100 mb-2">
+                <span className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-accent-soft text-accent">
+                  <value.icon className="h-5 w-5" strokeWidth={1.75} />
+                </span>
+                <h3 className="font-display text-lg font-semibold text-ink mb-2">
                   {value.title}
                 </h3>
-                <p className="text-sm text-slate-400 leading-7">
+                <p className="text-sm leading-relaxed text-ink-muted">
                   {value.description}
                 </p>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Team */}
-      <section className="py-16 bg-slate-950">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionHeader
-            subtitle="Our Team"
-            title="Meet the Experts"
-            description="Professionals behind our success"
-            className="mb-12"
-          />
+      <section className="section-padding relative overflow-hidden">
+        <div
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_80%_0%,rgba(13,148,136,0.07),transparent_45%)]"
+          aria-hidden="true"
+        />
+        <div className="relative container-custom">
+          <div className="mb-12 md:mb-14 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <SectionHeader
+              alignment="left"
+              subtitle="Our Team"
+              title="Meet the experts"
+              description="The people shaping products, platforms, and delivery at CodeCraft.BD."
+              className="mb-0"
+            />
+            {!isLoading && team.length > 0 && (
+              <p className="text-sm text-ink-subtle lg:pb-1">
+                {team.length} team member{team.length === 1 ? "" : "s"}
+              </p>
+            )}
+          </div>
 
           {isLoading ? (
-            <div className="text-center text-slate-400">
-              Loading team members...
-            </div>
+            <Loader text="Loading team members..." className="py-20" />
+          ) : team.length === 0 ? (
+            <EmptyState
+              title="No team members yet"
+              description="Published team profiles will appear here."
+            />
           ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {team.map((member) => (
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
+              {team.map((member, index) => (
                 <TeamMemberCard
                   key={member._id}
                   member={member}
+                  index={index}
                   isExpanded={expandedMembers.has(member._id)}
                   onToggle={() => toggleMember(member._id)}
                 />

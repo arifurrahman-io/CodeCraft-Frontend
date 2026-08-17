@@ -33,9 +33,9 @@ const toFrontendSettings = (settings = {}) => {
     branding: {
       logo: settings.logo || "",
       favicon: settings.favicon || "",
-      primaryColor: settings.primaryColor || "#06b6d4",
-      secondaryColor: settings.secondaryColor || "#1e293b",
-      accentColor: settings.accentColor || "#8b5cf6",
+      primaryColor: settings.primaryColor || "#0d9488",
+      secondaryColor: settings.secondaryColor || "#0a1628",
+      accentColor: settings.accentColor || "#0f766e",
     },
     statistics: {
       yearsExperience: statistics.yearsExperience || settings.yearsExperience || "",

@@ -11,28 +11,22 @@ const api = axios.create({
   },
 });
 
-// Request interceptor
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("adminToken");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  },
-);
-
-// Response interceptor
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    const isLoginRequest = error.config?.url?.includes("/auth/login");
+    const url = error.config?.url || "";
+    const isLoginRequest = url.includes("/auth/login");
+    const isSessionCheck = url.includes("/auth/me");
     const isLoginPage = window.location.pathname === "/admin/login";
+    const isAdminRoute = window.location.pathname.startsWith("/admin");
 
-    if (error.response?.status === 401 && !isLoginRequest && !isLoginPage) {
+    if (
+      error.response?.status === 401 &&
+      !isLoginRequest &&
+      !isSessionCheck &&
+      !isLoginPage &&
+      isAdminRoute
+    ) {
       localStorage.removeItem("adminToken");
       localStorage.removeItem("adminUser");
       window.location.href = "/admin/login";
@@ -68,10 +62,13 @@ export const unwrapData = (payload) => {
       return current;
     }
 
-    const key = wrapperKeys.find((wrapperKey) =>
-      Object.prototype.hasOwnProperty.call(current, wrapperKey) &&
-      (["data", "result", "item", "items", "docs", "results"].includes(wrapperKey) ||
-        (current[wrapperKey] && typeof current[wrapperKey] === "object")),
+    const key = wrapperKeys.find(
+      (wrapperKey) =>
+        Object.prototype.hasOwnProperty.call(current, wrapperKey) &&
+        (["data", "result", "item", "items", "docs", "results"].includes(
+          wrapperKey,
+        ) ||
+          (current[wrapperKey] && typeof current[wrapperKey] === "object")),
     );
 
     if (!key) return current;

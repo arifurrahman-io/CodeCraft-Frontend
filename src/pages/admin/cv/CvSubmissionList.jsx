@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { toast } from "sonner";
+import StatusBadge from "@/components/admin/StatusBadge";
 import DataTable from "@/components/admin/DataTable";
 import Input from "@/components/common/Input";
+import Loader from "@/components/common/Loader";
 import { getAllCvSubmissions } from "@/services/cvSubmissionService";
 
 const getSubmissionsFromResponse = (response) => {
@@ -110,10 +112,10 @@ const CvSubmissionListPage = () => {
       accessor: "fullName",
       render: (row) => (
         <div>
-          <h3 className="font-medium text-slate-100">{row.fullName}</h3>
-          <p className="text-sm text-slate-500">{row.emailAddress}</p>
+          <h3 className="font-medium text-ink">{row.fullName}</h3>
+          <p className="text-sm text-ink-muted">{row.emailAddress}</p>
           {row.mobileNumber && (
-            <p className="text-xs text-slate-600">{row.mobileNumber}</p>
+            <p className="text-xs text-ink-subtle">{row.mobileNumber}</p>
           )}
         </div>
       ),
@@ -122,30 +124,35 @@ const CvSubmissionListPage = () => {
       header: "Gender",
       accessor: "gender",
       render: (row) => (
-        <span className="text-slate-300">{row.gender || "N/A"}</span>
+        <span className="text-ink">{row.gender || "N/A"}</span>
       ),
     },
     {
       header: "Latest Education",
       accessor: "educationalQualifications",
       render: (row) => (
-        <span className="text-slate-300">{latestEducation(row)}</span>
+        <span className="text-ink">{latestEducation(row)}</span>
       ),
     },
     {
       header: "Skills",
       accessor: "technicalSkills",
       render: (row) => (
-        <p className="max-w-xs truncate text-slate-400">
+        <p className="max-w-xs truncate text-ink-muted">
           {row.technicalSkills || "N/A"}
         </p>
       ),
     },
     {
+      header: "Status",
+      accessor: "status",
+      render: (row) => <StatusBadge status={row.status} />,
+    },
+    {
       header: "Submitted",
       accessor: "createdAt",
       render: (row) => (
-        <span className="text-slate-400">{formatDate(row.createdAt)}</span>
+        <span className="text-ink-muted">{formatDate(row.createdAt)}</span>
       ),
     },
   ];
@@ -153,8 +160,8 @@ const CvSubmissionListPage = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-100">CV Submissions</h1>
-        <p className="text-slate-400">Review public CV submissions</p>
+        <h1 className="text-2xl font-bold text-ink">CV Submissions</h1>
+        <p className="text-ink-muted">Review public CV submissions</p>
       </div>
 
       <Input
@@ -165,8 +172,8 @@ const CvSubmissionListPage = () => {
       />
 
       {isLoading ? (
-        <div className="glass rounded-xl p-6 border border-slate-700/50">
-          <p className="text-slate-300">Loading CV submissions...</p>
+        <div className="bg-surface rounded-xl p-12 border border-border">
+          <Loader text="Loading CV submissions..." />
         </div>
       ) : (
         <DataTable

@@ -1,8 +1,8 @@
-import { Outlet } from "react-router-dom";
-import { useLocation } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import SEO from "@/components/common/SEO";
 import Navbar from "@/components/website/Navbar";
 import Footer from "@/components/website/Footer";
+import ContactDock from "@/components/website/ContactDock";
 
 const pageSeo = {
   "/": {
@@ -52,14 +52,16 @@ const pageSeo = {
 const WebsiteLayout = () => {
   const location = useLocation();
   const seo = pageSeo[location.pathname];
+  const isHome = location.pathname === "/";
 
   return (
     <div className="min-h-screen flex flex-col">
       {seo && <SEO {...seo} path={location.pathname} />}
       <Navbar />
-      <main className="flex-1 pt-16">
+      <main className={`flex-1 ${isHome ? "" : "pt-16 md:pt-20"}`}>
         <Outlet />
       </main>
+      <ContactDock />
       <Footer />
     </div>
   );

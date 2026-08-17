@@ -8,7 +8,7 @@ const AdminLayout = () => {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-slate-950">
+    <div className="min-h-screen bg-canvas print:bg-white print:min-h-0">
       <AdminSidebar
         isCollapsed={isSidebarCollapsed}
         setIsCollapsed={setIsSidebarCollapsed}
@@ -19,7 +19,7 @@ const AdminLayout = () => {
         <button
           type="button"
           aria-label="Close admin navigation"
-          className="fixed inset-0 z-30 bg-slate-950/70 backdrop-blur-sm lg:hidden"
+          className="fixed inset-0 z-30 bg-ink/40 backdrop-blur-sm lg:hidden"
           onClick={() => setIsMobileSidebarOpen(false)}
         />
       )}
@@ -28,11 +28,11 @@ const AdminLayout = () => {
         isSidebarCollapsed={isSidebarCollapsed}
       />
       <main
-        className={`pt-16 transition-all duration-300 ${
+        className={`pt-16 transition-all duration-300 print:pt-0 print:ml-0 ${
           isSidebarCollapsed ? "lg:ml-20" : "lg:ml-64"
         }`}
       >
-        <div className="p-4 sm:p-6">
+        <div className="p-4 sm:p-6 print:p-0">
           <Outlet />
         </div>
       </main>

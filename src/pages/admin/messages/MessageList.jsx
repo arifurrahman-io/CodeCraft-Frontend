@@ -3,6 +3,7 @@ import { Search } from "lucide-react";
 import { toast } from "sonner";
 
 import Input from "@/components/common/Input";
+import Loader from "@/components/common/Loader";
 import DataTable from "@/components/admin/DataTable";
 import StatusBadge from "@/components/admin/StatusBadge";
 import { deleteMessage, getAllMessages } from "@/services/contactService";
@@ -71,18 +72,13 @@ const MessageListPage = () => {
   }, [fetchMessages]);
 
   const handleDelete = async (id) => {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this message?",
-    );
-
-    if (!confirmed) return;
-
     try {
       await deleteMessage(id);
       setMessages((prev) => prev.filter((message) => message._id !== id));
       toast.success("Message deleted successfully");
     } catch (error) {
       toast.error(error?.response?.data?.message || "Failed to delete message");
+      throw error;
     }
   };
 
@@ -121,13 +117,13 @@ const MessageListPage = () => {
         <div>
           <h3
             className={`font-medium ${
-              row.status === "unread" ? "text-slate-100" : "text-slate-400"
+              row.status === "unread" ? "text-ink" : "text-ink-muted"
             }`}
           >
             {row.name}
           </h3>
-          <p className="text-sm text-slate-500">{row.email}</p>
-          {row.phone && <p className="text-xs text-slate-600">{row.phone}</p>}
+          <p className="text-sm text-ink-muted">{row.email}</p>
+          {row.phone && <p className="text-xs text-ink-subtle">{row.phone}</p>}
         </div>
       ),
     },
@@ -135,7 +131,7 @@ const MessageListPage = () => {
       header: "Company",
       accessor: "company",
       render: (row) => (
-        <span className="text-slate-300">{row.company || "N/A"}</span>
+        <span className="text-ink">{row.company || "N/A"}</span>
       ),
     },
     {
@@ -143,8 +139,8 @@ const MessageListPage = () => {
       accessor: "projectType",
       render: (row) => (
         <div>
-          <p className="text-slate-300">{row.projectType || "N/A"}</p>
-          <p className="text-xs text-slate-500">
+          <p className="text-ink">{row.projectType || "N/A"}</p>
+          <p className="text-xs text-ink-muted">
             {row.budgetRange || "No budget"}
           </p>
         </div>
@@ -154,7 +150,7 @@ const MessageListPage = () => {
       header: "Message",
       accessor: "message",
       render: (row) => (
-        <p className="max-w-xs truncate text-slate-400">{row.message}</p>
+        <p className="max-w-xs truncate text-ink-muted">{row.message}</p>
       ),
     },
     {
@@ -166,7 +162,7 @@ const MessageListPage = () => {
       header: "Date",
       accessor: "createdAt",
       render: (row) => (
-        <span className="text-slate-400">{formatDate(row.createdAt)}</span>
+        <span className="text-ink-muted">{formatDate(row.createdAt)}</span>
       ),
     },
   ];
@@ -174,8 +170,8 @@ const MessageListPage = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-100">Messages</h1>
-        <p className="text-slate-400">View contact form submissions</p>
+        <h1 className="text-2xl font-bold text-ink">Messages</h1>
+        <p className="text-ink-muted">View contact form submissions</p>
       </div>
 
       <div className="flex flex-col md:flex-row gap-4">
@@ -191,7 +187,7 @@ const MessageListPage = () => {
         <select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
-          className="px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+          className="px-4 py-2.5 bg-surface border border-border rounded-lg text-ink focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent"
         >
           <option value="all">All Status</option>
           <option value="unread">Unread</option>
@@ -201,8 +197,8 @@ const MessageListPage = () => {
       </div>
 
       {isLoading ? (
-        <div className="glass rounded-xl p-6 border border-slate-700/50">
-          <p className="text-slate-300">Loading messages...</p>
+        <div className="bg-surface rounded-xl p-12 border border-border">
+          <Loader text="Loading messages..." />
         </div>
       ) : (
         <DataTable
@@ -211,6 +207,8 @@ const MessageListPage = () => {
           basePath="/admin/messages"
           showEdit={false}
           onDelete={handleDelete}
+          deleteTitle="Delete message"
+          deleteMessage="Are you sure you want to delete this message? This action cannot be undone."
           emptyMessage="No messages"
         />
       )}

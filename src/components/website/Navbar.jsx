@@ -13,6 +13,9 @@ const Navbar = () => {
   const location = useLocation();
   const { isAuthenticated } = useAuth();
 
+  const isHome = location.pathname === "/";
+  const useLightNav = isHome && !isScrolled && !isMobileMenuOpen;
+
   const adminAction = isAuthenticated
     ? {
         label: "Dashboard",
@@ -27,12 +30,15 @@ const Navbar = () => {
   const AdminActionIcon = adminAction.icon;
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
+    const handleScroll = () => setIsScrolled(window.scrollY > 24);
+    handleScroll();
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [location.pathname]);
 
   useEffect(() => {
     getSettings().then((response) => {
@@ -64,43 +70,59 @@ const Navbar = () => {
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled
-          ? "bg-slate-900/95 backdrop-blur-xl border-b border-slate-800 shadow-lg"
+        isScrolled || isMobileMenuOpen
+          ? "bg-surface/90 backdrop-blur-md border-b border-border shadow-soft"
           : "bg-transparent"
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="container-custom">
         <div className="flex items-center justify-between h-16 md:h-20">
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-2">
+          <Link
+            to="/"
+            className="relative z-10 flex items-center shrink-0 py-1"
+            aria-label={company.name}
+          >
             {logo ? (
               <img
                 src={logo}
                 alt={`${company.name} logo`}
-                className="h-8 max-w-56 object-contain md:h-12 md:max-w-64"
+                className={`h-10 w-auto max-w-[160px] object-contain object-left md:h-12 md:max-w-[210px] transition-all ${
+                  useLightNav ? "brightness-0 invert" : ""
+                }`}
               />
             ) : (
               <>
-                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
-                  <span className="text-white font-bold text-lg">C</span>
+                <div
+                  className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 transition-colors ${
+                    useLightNav ? "bg-white/15 text-white" : "bg-ink text-white"
+                  }`}
+                >
+                  <span className="font-display font-bold text-base">C</span>
                 </div>
-                <span className="text-xl font-bold text-slate-100">
+                <span
+                  className={`ml-2.5 font-display text-lg md:text-xl font-bold truncate transition-colors ${
+                    useLightNav ? "text-white" : "text-ink"
+                  }`}
+                >
                   {company.name}
                 </span>
               </>
             )}
           </Link>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-1">
+          <nav className="hidden lg:flex items-center gap-0.5">
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.path}
                 to={link.path}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                   isActive(link.path)
-                    ? "text-cyan-500 bg-cyan-500/10"
-                    : "text-slate-300 hover:text-slate-100 hover:bg-slate-800"
+                    ? useLightNav
+                      ? "text-white bg-white/12"
+                      : "text-accent bg-accent-soft"
+                    : useLightNav
+                      ? "text-white/75 hover:text-white hover:bg-white/10"
+                      : "text-ink-muted hover:text-ink hover:bg-ink/5"
                 }`}
               >
                 {link.label}
@@ -108,27 +130,39 @@ const Navbar = () => {
             ))}
           </nav>
 
-          {/* CTA Button */}
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden lg:flex items-center gap-2">
             <Link
               to={adminAction.path}
-              className="inline-flex items-center gap-2 px-4 py-2.5 text-slate-300 rounded-lg font-medium hover:text-slate-100 hover:bg-slate-800 transition-colors"
+              className={`inline-flex items-center gap-2 px-3 py-2 text-sm rounded-lg font-medium transition-colors ${
+                useLightNav
+                  ? "text-white/75 hover:text-white hover:bg-white/10"
+                  : "text-ink-muted hover:text-ink hover:bg-ink/5"
+              }`}
             >
               <AdminActionIcon className="w-4 h-4" />
               {adminAction.label}
             </Link>
             <Link
               to="/contact"
-              className="px-5 py-2.5 bg-cyan-500 text-slate-900 rounded-lg font-medium hover:bg-cyan-400 transition-colors"
+              className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                useLightNav
+                  ? "bg-white text-ink hover:bg-white/90"
+                  : "bg-accent text-white hover:bg-accent-hover"
+              }`}
             >
               Get Started
             </Link>
           </div>
 
-          {/* Mobile Menu Button */}
           <button
-            className="md:hidden p-2 rounded-lg text-slate-300 hover:text-slate-100 hover:bg-slate-800"
+            type="button"
+            className={`lg:hidden p-2 rounded-lg transition-colors ${
+              useLightNav
+                ? "text-white/80 hover:text-white hover:bg-white/10"
+                : "text-ink-muted hover:text-ink hover:bg-ink/5"
+            }`}
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label="Toggle menu"
           >
             {isMobileMenuOpen ? (
               <X className="w-6 h-6" />
@@ -139,24 +173,23 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile Menu */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-slate-900 border-t border-slate-800"
+            className="lg:hidden bg-surface border-t border-border overflow-hidden"
           >
-            <div className="px-4 py-4 space-y-2">
+            <div className="px-4 py-4 space-y-1">
               {NAV_LINKS.map((link) => (
                 <Link
                   key={link.path}
                   to={link.path}
                   className={`block px-4 py-3 rounded-lg text-base font-medium ${
                     isActive(link.path)
-                      ? "text-cyan-500 bg-cyan-500/10"
-                      : "text-slate-300 hover:text-slate-100 hover:bg-slate-800"
+                      ? "text-accent bg-accent-soft"
+                      : "text-ink-muted hover:text-ink hover:bg-ink/5"
                   }`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
@@ -165,7 +198,7 @@ const Navbar = () => {
               ))}
               <Link
                 to={adminAction.path}
-                className="flex items-center justify-center gap-2 px-4 py-3 mt-4 border border-slate-700 text-slate-100 rounded-lg text-center font-medium"
+                className="flex items-center justify-center gap-2 px-4 py-3 mt-3 border border-border text-ink rounded-lg text-center font-medium"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 <AdminActionIcon className="w-5 h-5" />
@@ -173,7 +206,7 @@ const Navbar = () => {
               </Link>
               <Link
                 to="/contact"
-                className="block px-4 py-3 bg-cyan-500 text-slate-900 rounded-lg text-center font-medium"
+                className="block px-4 py-3 bg-accent text-white rounded-lg text-center font-medium"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Get Started

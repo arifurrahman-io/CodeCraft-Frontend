@@ -2,7 +2,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import {
   getCurrentUser,
-  isAuthenticated as checkAuth,
   login as loginAdmin,
   logout as logoutAdmin,
 } from "@/services/authService";
@@ -14,12 +13,9 @@ export const AuthProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check for existing auth on mount
     const initAuth = async () => {
-      if (checkAuth()) {
-        const currentUser = await getCurrentUser();
-        setUser(currentUser);
-      }
+      const currentUser = await getCurrentUser();
+      setUser(currentUser);
       setIsLoading(false);
     };
     initAuth();

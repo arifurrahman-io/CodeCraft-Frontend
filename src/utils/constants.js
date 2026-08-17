@@ -35,6 +35,7 @@ export const ADMIN_NAV_LINKS = [
   { label: "Testimonials", path: "/admin/testimonials", icon: "MessageSquare" },
   { label: "Messages", path: "/admin/messages", icon: "MessageSquare" },
   { label: "CV Submissions", path: "/admin/cv-submissions", icon: "FileUser" },
+  { label: "Invoices", path: "/admin/invoices", icon: "Receipt" },
   { label: "Settings", path: "/admin/settings", icon: "Settings" },
 ];
 

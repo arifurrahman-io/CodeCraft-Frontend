@@ -4,7 +4,6 @@ import {
   Mail,
   Phone,
   MapPin,
-  ArrowRight,
   MessageCircle,
   Send,
   Briefcase,
@@ -79,66 +78,68 @@ const Footer = () => {
     .filter((social) => social.url);
 
   return (
-    <footer className="bg-slate-900 border-t border-slate-800">
-      {/* Main Footer */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
-          {/* Company Info */}
+    <footer className="relative bg-ink text-white mt-auto overflow-hidden">
+      <div
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_0%_0%,rgba(13,148,136,0.18),transparent_45%)]"
+        aria-hidden="true"
+      />
+
+      <div className="relative container-custom py-16 md:py-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-14">
           <div className="lg:col-span-1">
-            <Link to="/" className="flex items-center gap-2 mb-6">
+            <Link to="/" className="flex items-center gap-2.5 mb-5">
               {logo ? (
                 <img
                   src={logo}
                   alt={`${company.name} logo`}
-                  className="h-8 max-w-60 object-contain md:h-12 md:max-w-72"
+                  className="h-7 max-w-36 object-contain brightness-0 invert md:h-8 md:max-w-40"
                 />
               ) : (
                 <>
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
-                    <span className="text-white font-bold text-lg">C</span>
+                  <div className="w-9 h-9 rounded-lg bg-accent flex items-center justify-center">
+                    <span className="font-display text-white font-bold text-base">
+                      C
+                    </span>
                   </div>
-                  <span className="text-xl font-bold text-slate-100">
+                  <span className="font-display text-lg font-bold">
                     {company.name}
                   </span>
                 </>
               )}
             </Link>
-            <p className="text-slate-400 mb-6">{company.description}</p>
-            <div className="flex items-center gap-4">
-              {socialLinks.map((social) =>
-                (() => {
-                  const SocialIcon = socialIcons[social.icon] || Globe;
-
-                  return (
-                    <a
-                      key={social.name}
-                      href={social.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center text-slate-400 hover:text-cyan-500 hover:bg-slate-700 transition-colors"
-                      aria-label={social.name}
-                    >
-                      <SocialIcon className="w-5 h-5" />
-                    </a>
-                  );
-                })(),
-              )}
+            <p className="text-slate-400 text-sm leading-relaxed mb-6 max-w-xs">
+              {company.description}
+            </p>
+            <div className="flex items-center gap-2">
+              {socialLinks.map((social) => {
+                const SocialIcon = socialIcons[social.icon] || Globe;
+                return (
+                  <a
+                    key={social.name}
+                    href={social.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center text-slate-400 hover:text-white hover:bg-accent/80 transition-colors"
+                    aria-label={social.name}
+                  >
+                    <SocialIcon className="w-4 h-4" />
+                  </a>
+                );
+              })}
             </div>
           </div>
 
-          {/* Quick Links */}
           <div>
-            <h4 className="text-lg font-semibold text-slate-100 mb-6">
-              Quick Links
+            <h4 className="font-display text-sm font-semibold tracking-wide text-white mb-5">
+              Explore
             </h4>
             <ul className="space-y-3">
               {NAV_LINKS.map((link) => (
                 <li key={link.path}>
                   <Link
                     to={link.path}
-                    className="text-slate-400 hover:text-cyan-500 transition-colors flex items-center gap-2 group"
+                    className="text-slate-400 hover:text-white text-sm transition-colors"
                   >
-                    <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
                     {link.label}
                   </Link>
                 </li>
@@ -146,16 +147,15 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Services */}
           <div>
-            <h4 className="text-lg font-semibold text-slate-100 mb-6">
+            <h4 className="font-display text-sm font-semibold tracking-wide text-white mb-5">
               Services
             </h4>
-            <ul className="space-y-3">
+            <ul className="space-y-3 text-sm text-slate-400">
               <li>
                 <Link
                   to="/services"
-                  className="text-slate-400 hover:text-cyan-500 transition-colors"
+                  className="hover:text-white transition-colors"
                 >
                   Web Development
                 </Link>
@@ -163,7 +163,7 @@ const Footer = () => {
               <li>
                 <Link
                   to="/services"
-                  className="text-slate-400 hover:text-cyan-500 transition-colors"
+                  className="hover:text-white transition-colors"
                 >
                   Mobile Apps
                 </Link>
@@ -171,7 +171,7 @@ const Footer = () => {
               <li>
                 <Link
                   to="/services"
-                  className="text-slate-400 hover:text-cyan-500 transition-colors"
+                  className="hover:text-white transition-colors"
                 >
                   UI/UX Design
                 </Link>
@@ -179,7 +179,7 @@ const Footer = () => {
               <li>
                 <Link
                   to="/services"
-                  className="text-slate-400 hover:text-cyan-500 transition-colors"
+                  className="hover:text-white transition-colors"
                 >
                   SaaS Development
                 </Link>
@@ -187,7 +187,7 @@ const Footer = () => {
               <li>
                 <Link
                   to="/services"
-                  className="text-slate-400 hover:text-cyan-500 transition-colors"
+                  className="hover:text-white transition-colors"
                 >
                   E-commerce
                 </Link>
@@ -195,30 +195,29 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Contact Info */}
           <div>
-            <h4 className="text-lg font-semibold text-slate-100 mb-6">
-              Contact Us
+            <h4 className="font-display text-sm font-semibold tracking-wide text-white mb-5">
+              Contact
             </h4>
-            <ul className="space-y-4">
+            <ul className="space-y-4 text-sm">
               <li className="flex items-start gap-3">
-                <MapPin className="w-5 h-5 text-cyan-500 mt-0.5" />
+                <MapPin className="w-4 h-4 text-accent mt-0.5 shrink-0" />
                 <span className="text-slate-400">{company.address}</span>
               </li>
               <li className="flex items-center gap-3">
-                <Mail className="w-5 h-5 text-cyan-500" />
+                <Mail className="w-4 h-4 text-accent shrink-0" />
                 <a
                   href={`mailto:${company.email}`}
-                  className="text-slate-400 hover:text-cyan-500 transition-colors"
+                  className="text-slate-400 hover:text-white transition-colors"
                 >
                   {company.email}
                 </a>
               </li>
               <li className="flex items-center gap-3">
-                <Phone className="w-5 h-5 text-cyan-500" />
+                <Phone className="w-4 h-4 text-accent shrink-0" />
                 <a
                   href={`tel:${company.phone}`}
-                  className="text-slate-400 hover:text-cyan-500 transition-colors"
+                  className="text-slate-400 hover:text-white transition-colors"
                 >
                   {company.phone}
                 </a>
@@ -228,27 +227,24 @@ const Footer = () => {
         </div>
       </div>
 
-      {/* Bottom Footer */}
-      <div className="border-t border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-slate-500 text-sm">
-              © {currentYear} {company.name}. All rights reserved.
-            </p>
-            <div className="flex items-center gap-6">
-              <Link
-                to="/privacy"
-                className="text-slate-500 hover:text-cyan-500 text-sm transition-colors"
-              >
-                Privacy Policy
-              </Link>
-              <Link
-                to="/terms"
-                className="text-slate-500 hover:text-cyan-500 text-sm transition-colors"
-              >
-                Terms of Service
-              </Link>
-            </div>
+      <div className="relative border-t border-white/10">
+        <div className="container-custom py-5 flex flex-col md:flex-row items-center justify-between gap-3">
+          <p className="text-slate-500 text-sm">
+            © {currentYear} {company.name}. All rights reserved.
+          </p>
+          <div className="flex items-center gap-6">
+            <Link
+              to="/privacy"
+              className="text-slate-500 hover:text-white text-sm transition-colors"
+            >
+              Privacy Policy
+            </Link>
+            <Link
+              to="/terms"
+              className="text-slate-500 hover:text-white text-sm transition-colors"
+            >
+              Terms of Service
+            </Link>
           </div>
         </div>
       </div>

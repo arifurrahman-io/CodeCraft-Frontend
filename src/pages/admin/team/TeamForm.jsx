@@ -5,6 +5,7 @@ import { toast } from "sonner";
 
 import Button from "@/components/common/Button";
 import Input from "@/components/common/Input";
+import Loader from "@/components/common/Loader";
 import TextArea from "@/components/common/TextArea";
 import ImageUploader from "@/components/admin/ImageUploader";
 import {
@@ -186,8 +187,8 @@ const TeamFormPage = () => {
   if (isLoading) {
     return (
       <div className="mx-auto w-full max-w-4xl">
-        <div className="glass rounded-xl p-6 border border-slate-700/50">
-          <p className="text-slate-300">Loading team member...</p>
+        <div className="bg-surface rounded-xl p-12 border border-border">
+          <Loader text="Loading team member..." />
         </div>
       </div>
     );
@@ -199,24 +200,24 @@ const TeamFormPage = () => {
         <button
           type="button"
           onClick={() => navigate("/admin/team")}
-          className="p-2 rounded-lg text-slate-400 hover:text-slate-100 hover:bg-slate-800"
+          className="p-2 rounded-lg text-ink-muted hover:text-ink hover:bg-ink/5"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
 
         <div>
-          <h1 className="text-2xl font-bold text-slate-100">
+          <h1 className="text-2xl font-bold text-ink">
             {isEditing ? "Edit Team Member" : "Add Team Member"}
           </h1>
-          <p className="text-slate-400">
+          <p className="text-ink-muted">
             {isEditing ? "Update team member details" : "Add a new team member"}
           </p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="glass rounded-xl p-6 border border-slate-700/50 space-y-6">
-          <h2 className="text-lg font-semibold text-slate-100">
+        <div className="bg-surface rounded-xl p-6 border border-border space-y-6">
+          <h2 className="text-lg font-semibold text-ink">
             Basic Information
           </h2>
 
@@ -259,8 +260,8 @@ const TeamFormPage = () => {
           />
         </div>
 
-        <div className="glass rounded-xl p-6 border border-slate-700/50 space-y-6">
-          <h2 className="text-lg font-semibold text-slate-100">Photo</h2>
+        <div className="bg-surface rounded-xl p-6 border border-border space-y-6">
+          <h2 className="text-lg font-semibold text-ink">Photo</h2>
 
           <ImageUploader
             label="Member Photo"
@@ -274,8 +275,8 @@ const TeamFormPage = () => {
           />
         </div>
 
-        <div className="glass rounded-xl p-6 border border-slate-700/50 space-y-6">
-          <h2 className="text-lg font-semibold text-slate-100">Skills</h2>
+        <div className="bg-surface rounded-xl p-6 border border-border space-y-6">
+          <h2 className="text-lg font-semibold text-ink">Skills</h2>
 
           <div className="flex gap-3">
             <Input
@@ -299,13 +300,13 @@ const TeamFormPage = () => {
             {ensureArray(formData.skills).map((skill, index) => (
               <span
                 key={`${skill}-${index}`}
-                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300"
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-canvas text-ink"
               >
                 {skill}
                 <button
                   type="button"
                   onClick={() => handleRemoveSkill(index)}
-                  className="text-slate-500 hover:text-red-500"
+                  className="text-ink-muted hover:text-red-500"
                 >
                   ×
                 </button>
@@ -314,8 +315,8 @@ const TeamFormPage = () => {
           </div>
         </div>
 
-        <div className="glass rounded-xl p-6 border border-slate-700/50 space-y-6">
-          <h2 className="text-lg font-semibold text-slate-100">Social Links</h2>
+        <div className="bg-surface rounded-xl p-6 border border-border space-y-6">
+          <h2 className="text-lg font-semibold text-ink">Social Links</h2>
 
           <div className="grid md:grid-cols-2 gap-6">
             <Input
@@ -352,8 +353,8 @@ const TeamFormPage = () => {
           </div>
         </div>
 
-        <div className="glass rounded-xl p-6 border border-slate-700/50 space-y-6">
-          <h2 className="text-lg font-semibold text-slate-100">Settings</h2>
+        <div className="bg-surface rounded-xl p-6 border border-border space-y-6">
+          <h2 className="text-lg font-semibold text-ink">Settings</h2>
 
           <label className="flex items-center gap-3">
             <input
@@ -361,9 +362,9 @@ const TeamFormPage = () => {
               name="isActive"
               checked={formData.isActive}
               onChange={handleChange}
-              className="w-4 h-4 rounded border-slate-700 bg-slate-800 text-cyan-500"
+              className="w-4 h-4 rounded border-border bg-canvas text-accent"
             />
-            <span className="text-slate-300">Active</span>
+            <span className="text-ink">Active</span>
           </label>
         </div>
 

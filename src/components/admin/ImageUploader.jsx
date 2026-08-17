@@ -44,9 +44,9 @@ const ImageUploader = ({
         setPreview(response.data.url);
         onChange?.(response.data.url);
         toast.success("Image uploaded");
-      } catch (error) {
+      } catch (uploadError) {
         setPreview(value || null);
-        toast.error(error.message || "Failed to upload image");
+        toast.error(uploadError.message || "Failed to upload image");
       } finally {
         setIsUploading(false);
       }
@@ -82,17 +82,17 @@ const ImageUploader = ({
   return (
     <div className="w-full">
       {label && (
-        <label className="block text-sm font-medium text-slate-300 mb-2">
+        <label className="block text-sm font-medium text-ink mb-2">
           {label}
         </label>
       )}
 
       <div
         className={`
-          relative border-2 border-dashed rounded-xl transition-all duration-200
-          ${isDragging ? "border-cyan-500 bg-cyan-500/10" : ""}
-          ${error ? "border-red-500" : "border-slate-700"}
-          ${currentPreview ? "border-solid" : ""}
+          relative border-2 border-dashed rounded-xl transition-all duration-200 bg-surface
+          ${isDragging ? "border-accent bg-accent-soft" : ""}
+          ${error ? "border-red-500" : "border-border-strong"}
+          ${currentPreview ? "border-solid border-border" : ""}
         `}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
@@ -100,15 +100,15 @@ const ImageUploader = ({
       >
         {currentPreview ? (
           <div className="relative p-4">
-            <div className="relative aspect-video max-h-64 rounded-lg overflow-hidden">
+            <div className="relative aspect-video max-h-64 rounded-lg overflow-hidden bg-canvas">
               <img
                 src={currentPreview}
                 alt="Preview"
                 className="w-full h-full object-contain"
               />
               {isUploading && (
-                <div className="absolute inset-0 bg-slate-950/70 flex items-center justify-center">
-                  <div className="w-8 h-8 rounded-full border-2 border-cyan-500 border-t-transparent animate-spin" />
+                <div className="absolute inset-0 bg-surface/80 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-full border-2 border-accent border-t-transparent animate-spin" />
                 </div>
               )}
             </div>
@@ -116,7 +116,7 @@ const ImageUploader = ({
               type="button"
               onClick={handleRemove}
               disabled={isUploading}
-              className="absolute top-6 right-6 p-1.5 rounded-lg bg-slate-900/80 text-slate-400 hover:text-red-500 transition-colors"
+              className="absolute top-6 right-6 p-1.5 rounded-lg bg-surface border border-border text-ink-muted hover:text-red-600 hover:bg-red-50 transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
@@ -126,13 +126,13 @@ const ImageUploader = ({
             className="p-8 flex flex-col items-center justify-center cursor-pointer"
             onClick={() => fileInputRef.current?.click()}
           >
-            <div className="w-16 h-16 rounded-full bg-slate-800 flex items-center justify-center mb-4">
-              <ImageIcon className="w-8 h-8 text-slate-500" />
+            <div className="w-16 h-16 rounded-full bg-accent-soft flex items-center justify-center mb-4">
+              <ImageIcon className="w-8 h-8 text-accent" />
             </div>
-            <p className="text-slate-400 mb-2">
-              Drag and drop or <span className="text-cyan-500">browse</span>
+            <p className="text-ink-muted mb-2">
+              Drag and drop or <span className="text-accent font-medium">browse</span>
             </p>
-            <p className="text-sm text-slate-500">PNG, JPG up to {maxSize}MB</p>
+            <p className="text-sm text-ink-subtle">PNG, JPG up to {maxSize}MB</p>
           </div>
         )}
 
@@ -147,7 +147,7 @@ const ImageUploader = ({
         />
       </div>
 
-      {error && <p className="mt-1.5 text-sm text-red-500">{error}</p>}
+      {error && <p className="mt-1.5 text-sm text-red-600">{error}</p>}
     </div>
   );
 };

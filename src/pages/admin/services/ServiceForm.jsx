@@ -5,6 +5,7 @@ import { toast } from "sonner";
 
 import Button from "@/components/common/Button";
 import Input from "@/components/common/Input";
+import Loader from "@/components/common/Loader";
 import TextArea from "@/components/common/TextArea";
 import ImageUploader from "@/components/admin/ImageUploader";
 import {
@@ -243,8 +244,8 @@ const ServiceFormPage = () => {
   if (isLoading) {
     return (
       <div className="mx-auto w-full max-w-4xl">
-        <div className="glass rounded-xl p-6 border border-slate-700/50">
-          <p className="text-slate-300">Loading service...</p>
+        <div className="bg-surface rounded-xl p-12 border border-border">
+          <Loader text="Loading service..." />
         </div>
       </div>
     );
@@ -256,16 +257,16 @@ const ServiceFormPage = () => {
         <button
           type="button"
           onClick={() => navigate("/admin/services")}
-          className="p-2 rounded-lg text-slate-400 hover:text-slate-100 hover:bg-slate-800 transition-colors"
+          className="p-2 rounded-lg text-ink-muted hover:text-ink hover:bg-ink/5 transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
 
         <div>
-          <h1 className="text-2xl font-bold text-slate-100">
+          <h1 className="text-2xl font-bold text-ink">
             {isEditing ? "Edit Service" : "Create Service"}
           </h1>
-          <p className="text-slate-400">
+          <p className="text-ink-muted">
             {isEditing
               ? "Update service information"
               : "Add a new service to your portfolio"}
@@ -274,8 +275,8 @@ const ServiceFormPage = () => {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="glass rounded-xl p-6 border border-slate-700/50 space-y-6">
-          <h2 className="text-lg font-semibold text-slate-100">
+        <div className="bg-surface rounded-xl p-6 border border-border space-y-6">
+          <h2 className="text-lg font-semibold text-ink">
             Basic Information
           </h2>
 
@@ -321,14 +322,14 @@ const ServiceFormPage = () => {
 
           <div className="grid md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
+              <label className="block text-sm font-medium text-ink mb-2">
                 Icon
               </label>
               <select
                 name="icon"
                 value={formData.icon}
                 onChange={handleChange}
-                className="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                className="w-full px-4 py-2.5 bg-surface border border-border rounded-lg text-ink focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent"
               >
                 {iconOptions.map((icon) => (
                   <option key={icon} value={icon}>
@@ -349,8 +350,8 @@ const ServiceFormPage = () => {
           </div>
         </div>
 
-        <div className="glass rounded-xl p-6 border border-slate-700/50 space-y-6">
-          <h2 className="text-lg font-semibold text-slate-100">Pricing</h2>
+        <div className="bg-surface rounded-xl p-6 border border-border space-y-6">
+          <h2 className="text-lg font-semibold text-ink">Pricing</h2>
 
           <Input
             label="Price Range"
@@ -361,8 +362,8 @@ const ServiceFormPage = () => {
           />
         </div>
 
-        <div className="glass rounded-xl p-6 border border-slate-700/50 space-y-6">
-          <h2 className="text-lg font-semibold text-slate-100">Features</h2>
+        <div className="bg-surface rounded-xl p-6 border border-border space-y-6">
+          <h2 className="text-lg font-semibold text-ink">Features</h2>
 
           <div className="flex gap-3">
             <Input
@@ -390,13 +391,13 @@ const ServiceFormPage = () => {
             {ensureArray(formData.features).map((feature, index) => (
               <span
                 key={`${feature}-${index}`}
-                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300"
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-canvas text-ink"
               >
                 {feature}
                 <button
                   type="button"
                   onClick={() => handleRemoveFeature(index)}
-                  className="text-slate-500 hover:text-red-500"
+                  className="text-ink-muted hover:text-red-500"
                 >
                   ×
                 </button>
@@ -405,8 +406,8 @@ const ServiceFormPage = () => {
           </div>
         </div>
 
-        <div className="glass rounded-xl p-6 border border-slate-700/50 space-y-6">
-          <h2 className="text-lg font-semibold text-slate-100">Technologies</h2>
+        <div className="bg-surface rounded-xl p-6 border border-border space-y-6">
+          <h2 className="text-lg font-semibold text-ink">Technologies</h2>
 
           <div className="flex gap-3">
             <Input
@@ -434,13 +435,13 @@ const ServiceFormPage = () => {
             {ensureArray(formData.technologies).map((technology, index) => (
               <span
                 key={`${technology}-${index}`}
-                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300"
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-canvas text-ink"
               >
                 {technology}
                 <button
                   type="button"
                   onClick={() => handleRemoveTechnology(index)}
-                  className="text-slate-500 hover:text-red-500"
+                  className="text-ink-muted hover:text-red-500"
                 >
                   ×
                 </button>
@@ -449,8 +450,8 @@ const ServiceFormPage = () => {
           </div>
         </div>
 
-        <div className="glass rounded-xl p-6 border border-slate-700/50 space-y-6">
-          <h2 className="text-lg font-semibold text-slate-100">Image</h2>
+        <div className="bg-surface rounded-xl p-6 border border-border space-y-6">
+          <h2 className="text-lg font-semibold text-ink">Image</h2>
 
           <ImageUploader
             label="Service Image"
@@ -464,8 +465,8 @@ const ServiceFormPage = () => {
           />
         </div>
 
-        <div className="glass rounded-xl p-6 border border-slate-700/50 space-y-6">
-          <h2 className="text-lg font-semibold text-slate-100">SEO</h2>
+        <div className="bg-surface rounded-xl p-6 border border-border space-y-6">
+          <h2 className="text-lg font-semibold text-ink">SEO</h2>
 
           <Input
             label="SEO Title"
@@ -485,8 +486,8 @@ const ServiceFormPage = () => {
           />
         </div>
 
-        <div className="glass rounded-xl p-6 border border-slate-700/50 space-y-6">
-          <h2 className="text-lg font-semibold text-slate-100">Settings</h2>
+        <div className="bg-surface rounded-xl p-6 border border-border space-y-6">
+          <h2 className="text-lg font-semibold text-ink">Settings</h2>
 
           <div className="flex flex-col gap-4">
             <label className="flex items-center gap-3">
@@ -495,19 +496,19 @@ const ServiceFormPage = () => {
                 name="isFeatured"
                 checked={formData.isFeatured}
                 onChange={handleChange}
-                className="w-4 h-4 rounded border-slate-700 bg-slate-800 text-cyan-500 focus:ring-cyan-500"
+                className="w-4 h-4 rounded border-border bg-canvas text-accent focus:ring-accent"
               />
-              <span className="text-slate-300">Featured Service</span>
+              <span className="text-ink">Featured Service</span>
             </label>
 
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
+              <label className="block text-sm font-medium text-ink mb-2">
                 Status
               </label>
               <select
                 value={formData.isActive ? "active" : "inactive"}
                 onChange={handleStatusChange}
-                className="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 rounded-lg text-slate-100 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                className="w-full px-4 py-2.5 bg-surface border border-border rounded-lg text-ink focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent"
               >
                 <option value="active">Active</option>
                 <option value="inactive">Inactive</option>
